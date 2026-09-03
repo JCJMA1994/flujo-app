@@ -48,7 +48,7 @@ public class FinancialAdvisorService {
     ) {}
 
     public AdvisorResponse answerQuery(String userId, String userQuery) {
-        List<TransactionJpaEntity> allTransactions = transactionRepository.findByUserIdAndDeletedFalse(userId);
+        List<TransactionJpaEntity> allTransactions = transactionRepository.findByUserIdOrderByOccurredAtDesc(userId);
 
         OffsetDateTime now = OffsetDateTime.now();
         int currentYear = now.getYear();

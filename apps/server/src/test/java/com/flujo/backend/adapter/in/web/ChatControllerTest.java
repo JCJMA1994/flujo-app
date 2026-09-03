@@ -48,7 +48,7 @@ class ChatControllerTest {
     @Test
     void queryRespondeExitosamenteConTokenValido() throws Exception {
         when(jwtTokenService.validateToken("valid-token")).thenReturn(
-            Optional.of(new JwtTokenService.JwtClaims("user-123", "user@flujo.com", System.currentTimeMillis()))
+            Optional.of(new JwtTokenService.JwtClaims("user-123", "user@flujo.com", "Juan Pérez"))
         );
 
         when(financialAdvisorService.answerQuery(eq("user-123"), any()))
