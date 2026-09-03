@@ -61,6 +61,9 @@ public class AuthFilter extends OncePerRequestFilter {
         if (path.startsWith("/v1/transactions")) {
             return true;
         }
+        if (path.startsWith("/v1/chat")) {
+            return true;
+        }
         if (path.equals("/v1/auth/me")) {
             return true;
         }
