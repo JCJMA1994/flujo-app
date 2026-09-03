@@ -101,12 +101,14 @@ class _CaptureOnboardingViewState extends State<_CaptureOnboardingView>
                 ),
                 const _Bullet(
                   icon: Icons.wifi_rounded,
-                  text: 'Conexión a internet: Al igual que tus pagos en Yape o bancos, '
+                  text:
+                      'Conexión a internet: Al igual que tus pagos en Yape o bancos, '
                       'requiere internet activo para interpretar la transacción con la IA.',
                 ),
                 const _Bullet(
                   icon: Icons.shield_outlined,
-                  text: 'Privacidad garantizada: Solo procesamos notificaciones de apps '
+                  text:
+                      'Privacidad garantizada: Solo procesamos notificaciones de apps '
                       'financieras autorizadas (Yape, Plin, BCP, BBVA, Interbank).',
                 ),
                 const SizedBox(height: 24),
@@ -152,10 +154,12 @@ class _CaptureOnboardingViewState extends State<_CaptureOnboardingView>
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    color: theme.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                      color: theme.colorScheme.outlineVariant
+                          .withValues(alpha: 0.4),
                     ),
                   ),
                   child: Column(
@@ -189,10 +193,14 @@ class _CaptureOnboardingViewState extends State<_CaptureOnboardingView>
                       OutlinedButton.icon(
                         onPressed: () {
                           const MethodChannel('com.flujo.app/share')
-                              .invokeMethod('requestIgnoreBatteryOptimizations');
+                              .invokeMethod(
+                            'requestIgnoreBatteryOptimizations',
+                          );
                         },
                         icon: const Icon(Icons.bolt_rounded, size: 18),
-                        label: const Text('Configurar Batería (Sin restricciones)'),
+                        label: const Text(
+                          'Configurar Batería (Sin restricciones)',
+                        ),
                       ),
                     ],
                   ),
@@ -345,11 +353,13 @@ class _UnsupportedView extends StatelessWidget {
           ),
           const _Bullet(
             icon: Icons.shield_outlined,
-            text: 'Privacidad total: solo filtramos y procesamos correos de dominios bancarios verificados.',
+            text:
+                'Privacidad total: solo filtramos y procesamos correos de dominios bancarios verificados.',
           ),
           const _Bullet(
             icon: Icons.sync_rounded,
-            text: 'Sincronización en la nube mediante webhooks seguros de Google Cloud Pub/Sub.',
+            text:
+                'Sincronización en la nube mediante webhooks seguros de Google Cloud Pub/Sub.',
           ),
           const SizedBox(height: 32),
           SizedBox(

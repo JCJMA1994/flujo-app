@@ -31,7 +31,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         throw const ServerFailure('Respuesta vacía del servidor');
       }
 
-      final answer = data['answer'] as String? ?? 'No tengo información para esa consulta.';
+      final answer = data['answer'] as String? ??
+          'No tengo información para esa consulta.';
       final chipsRaw = data['suggested_chips'] as List<dynamic>? ?? [];
       final chips = chipsRaw.map((e) => e.toString()).toList();
 

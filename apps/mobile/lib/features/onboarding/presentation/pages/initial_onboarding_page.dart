@@ -101,8 +101,7 @@ class _InitialOnboardingPageState extends State<InitialOnboardingPage> {
           children: [
             // ── Header ──────────────────────────────────────────────
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Row(
                 children: [
                   Container(

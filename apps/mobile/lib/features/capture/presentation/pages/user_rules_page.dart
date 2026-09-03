@@ -94,8 +94,7 @@ class UserRulesPage extends StatelessWidget {
                   return Card(
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.surface,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         child: Text(
                           category.emoji,
                           style: const TextStyle(fontSize: 20),

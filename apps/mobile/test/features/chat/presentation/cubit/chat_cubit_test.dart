@@ -53,16 +53,25 @@ void main() {
         isA<ChatState>()
             .having((s) => s.status, 'status', ChatStatus.success)
             .having((s) => s.messages.length, 'messages.length', 2)
-            .having((s) => s.messages.last.text, 'text', 'Gastaste S/ 450 en comida este mes.')
-            .having((s) => s.activeChips, 'activeChips', ['¿Cuánto en transporte?']),
+            .having(
+              (s) => s.messages.last.text,
+              'text',
+              'Gastaste S/ 450 en comida este mes.',
+            )
+            .having(
+          (s) => s.activeChips,
+          'activeChips',
+          ['¿Cuánto en transporte?'],
+        ),
       ],
     );
 
     blocTest<ChatCubit, ChatState>(
       'sendMessage emite loading y luego error ante fallo de red o servidor',
       build: () {
-        when(() => mockAskAssistant('consulta'))
-            .thenAnswer((_) async => const FailureResult(ServerFailure('Error del servidor')));
+        when(() => mockAskAssistant('consulta')).thenAnswer(
+          (_) async => const FailureResult(ServerFailure('Error del servidor')),
+        );
         return cubit;
       },
       act: (cubit) => cubit.sendMessage('consulta'),
@@ -70,7 +79,11 @@ void main() {
         isA<ChatState>().having((s) => s.status, 'status', ChatStatus.loading),
         isA<ChatState>()
             .having((s) => s.status, 'status', ChatStatus.error)
-            .having((s) => s.errorMessage, 'errorMessage', 'Error del servidor'),
+            .having(
+              (s) => s.errorMessage,
+              'errorMessage',
+              'Error del servidor',
+            ),
       ],
     );
   });

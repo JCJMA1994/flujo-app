@@ -33,7 +33,8 @@ class ChatCubit extends Cubit<ChatState> {
     final result = await _askFinancialAssistant(clean);
     result.fold(
       onSuccess: (assistantMessage) {
-        final withAssistant = List<ChatMessage>.from(state.messages)..add(assistantMessage);
+        final withAssistant = List<ChatMessage>.from(state.messages)
+          ..add(assistantMessage);
         emit(
           state.copyWith(
             status: ChatStatus.success,

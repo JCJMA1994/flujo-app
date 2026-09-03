@@ -50,7 +50,10 @@ mixin AmountParsing {
   String cleanMerchant(String raw) {
     return raw
         .replaceAll(
-          RegExp(r'^(?:DLC\*|PAYU\*|IZI\*|CULQI\*|NIUBIZ\*)+', caseSensitive: false),
+          RegExp(
+            r'^(?:DLC\*|PAYU\*|IZI\*|CULQI\*|NIUBIZ\*)+',
+            caseSensitive: false,
+          ),
           '',
         )
         .replaceAll(RegExp(r'\*+\d+'), '')

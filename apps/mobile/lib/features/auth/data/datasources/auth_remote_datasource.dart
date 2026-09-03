@@ -58,7 +58,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       throw ServerFailure(
         e.response?.data is Map
-            ? (e.response!.data as Map)['error']?.toString() ?? e.message ?? 'Error de autenticación'
+            ? (e.response!.data as Map)['error']?.toString() ??
+                e.message ??
+                'Error de autenticación'
             : e.message ?? 'Error del servidor',
       );
     }
@@ -91,7 +93,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       throw ServerFailure(
         e.response?.data is Map
-            ? (e.response!.data as Map)['error']?.toString() ?? e.message ?? 'Error al registrar usuario'
+            ? (e.response!.data as Map)['error']?.toString() ??
+                e.message ??
+                'Error al registrar usuario'
             : e.message ?? 'Error del servidor',
       );
     }

@@ -73,7 +73,8 @@ class _TransactionsView extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -89,7 +90,10 @@ class _TransactionsView extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             '${state.transactions.length} movimientos',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
@@ -105,7 +109,10 @@ class _TransactionsView extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             'Promedio: S/ ${avgExpense.toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color:
                                       Theme.of(context).colorScheme.secondary,

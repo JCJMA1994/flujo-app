@@ -96,8 +96,8 @@ class AdaptiveNavigationShell extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color:
-                                    theme.colorScheme.primary.withValues(alpha: 0.3),
+                                color: theme.colorScheme.primary
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),

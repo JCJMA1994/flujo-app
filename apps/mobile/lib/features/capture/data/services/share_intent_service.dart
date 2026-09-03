@@ -71,13 +71,17 @@ class ShareIntentService {
 
     final now = DateTime.now();
     if (_isProcessing) {
-      debugPrint('ShareIntentService: Ya se está procesando un comprobante, omitiendo duplicado.');
+      debugPrint(
+        'ShareIntentService: Ya se está procesando un comprobante, omitiendo duplicado.',
+      );
       return;
     }
     if (_lastProcessedSignature == signature &&
         _lastProcessedTime != null &&
         now.difference(_lastProcessedTime!) < const Duration(seconds: 15)) {
-      debugPrint('ShareIntentService: Comprobante idéntico recibido en menos de 15s, omitiendo.');
+      debugPrint(
+        'ShareIntentService: Comprobante idéntico recibido en menos de 15s, omitiendo.',
+      );
       return;
     }
 

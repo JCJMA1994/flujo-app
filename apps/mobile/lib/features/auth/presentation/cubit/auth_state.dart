@@ -26,7 +26,8 @@ class AuthState extends Equatable {
   final User? user;
   final String? errorMessage;
 
-  bool get isAuthenticated => status == AuthStatus.authenticated && user != null;
+  bool get isAuthenticated =>
+      status == AuthStatus.authenticated && user != null;
 
   AuthState copyWith({
     AuthStatus? status,

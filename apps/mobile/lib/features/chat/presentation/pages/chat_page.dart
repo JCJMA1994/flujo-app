@@ -127,7 +127,8 @@ class _ChatViewState extends State<_ChatView> {
               ),
               if (state.status == ChatStatus.loading) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: Row(
                     children: [
                       const SizedBox(
@@ -201,7 +202,8 @@ class _EmptyChatWelcome extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
+                color:
+                    theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -234,7 +236,8 @@ class _EmptyChatWelcome extends StatelessWidget {
               children: [
                 ActionChip(
                   label: const Text('¿En qué gasté más este mes?'),
-                  onPressed: () => onChipSelected('¿En qué gasté más este mes?'),
+                  onPressed: () =>
+                      onChipSelected('¿En qué gasté más este mes?'),
                 ),
                 ActionChip(
                   label: const Text('¿Cuánto gasté en comida?'),

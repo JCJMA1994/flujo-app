@@ -117,9 +117,18 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(rawEventsTable);
             await m.addColumn(transactionsTable, transactionsTable.parser);
-            await m.addColumn(transactionsTable, transactionsTable.parserVersion);
-            await m.addColumn(transactionsTable, transactionsTable.notificationHash);
-            await m.addColumn(transactionsTable, transactionsTable.rawNotificationId);
+            await m.addColumn(
+              transactionsTable,
+              transactionsTable.parserVersion,
+            );
+            await m.addColumn(
+              transactionsTable,
+              transactionsTable.notificationHash,
+            );
+            await m.addColumn(
+              transactionsTable,
+              transactionsTable.rawNotificationId,
+            );
           }
         },
         beforeOpen: (details) async {

@@ -542,9 +542,7 @@ class _VariationBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            isSaving
-                ? Icons.savings_outlined
-                : Icons.info_outline_rounded,
+            isSaving ? Icons.savings_outlined : Icons.info_outline_rounded,
             size: 18,
             color: isSaving ? Colors.green : Colors.orange,
           ),
@@ -592,7 +590,8 @@ class _QuickActionsCard extends StatelessWidget {
               leading: const CircleAvatar(
                 radius: 16,
                 backgroundColor: Color(0xFFE0F2FE),
-                child: Icon(Icons.add_rounded, size: 18, color: Color(0xFF0284C7)),
+                child:
+                    Icon(Icons.add_rounded, size: 18, color: Color(0xFF0284C7)),
               ),
               title: const Text('Registrar movimiento'),
               subtitle: const Text('Gasto o ingreso manual'),
@@ -605,7 +604,11 @@ class _QuickActionsCard extends StatelessWidget {
               leading: const CircleAvatar(
                 radius: 16,
                 backgroundColor: Color(0xFFDCFCE7),
-                child: Icon(Icons.bolt_rounded, size: 18, color: Color(0xFF16A34A)),
+                child: Icon(
+                  Icons.bolt_rounded,
+                  size: 18,
+                  color: Color(0xFF16A34A),
+                ),
               ),
               title: const Text('Captura automática'),
               subtitle: const Text('Yape, Plin y bancos'),
@@ -618,7 +621,11 @@ class _QuickActionsCard extends StatelessWidget {
               leading: const CircleAvatar(
                 radius: 16,
                 backgroundColor: Color(0xFFF3E8FF),
-                child: Icon(Icons.auto_fix_high_rounded, size: 18, color: Color(0xFF9333EA)),
+                child: Icon(
+                  Icons.auto_fix_high_rounded,
+                  size: 18,
+                  color: Color(0xFF9333EA),
+                ),
               ),
               title: const Text('Reglas inteligentes'),
               subtitle: const Text('Categorización automática'),

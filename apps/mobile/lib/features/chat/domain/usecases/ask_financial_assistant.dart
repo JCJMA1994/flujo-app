@@ -12,7 +12,9 @@ class AskFinancialAssistant {
     final cleanQuery = query.trim();
     if (cleanQuery.isEmpty) {
       return Future.value(
-        const FailureResult(ValidationFailure('La consulta no puede estar vacía')),
+        const FailureResult(
+          ValidationFailure('La consulta no puede estar vacía'),
+        ),
       );
     }
     return _repository.askAssistant(cleanQuery);

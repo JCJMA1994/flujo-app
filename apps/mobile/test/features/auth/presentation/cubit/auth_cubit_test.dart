@@ -109,7 +109,8 @@ void main() {
             password: 'wrong',
           ),
         ).thenAnswer(
-          (_) async => const FailureResult(AuthFailure('Credenciales incorrectas')),
+          (_) async =>
+              const FailureResult(AuthFailure('Credenciales incorrectas')),
         );
         return authCubit;
       },

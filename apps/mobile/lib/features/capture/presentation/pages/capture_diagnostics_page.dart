@@ -40,7 +40,8 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
             prev.lastCaptured != current.lastCaptured ||
             prev.capturedCount != current.capturedCount,
         builder: (context, state) {
-          final isPermissionGranted = state.permission == CapturePermission.granted;
+          final isPermissionGranted =
+              state.permission == CapturePermission.granted;
           final isConnected = state.isListenerConnected;
           final isBatteryRestricted = state.isBatteryRestricted;
           final isAggressiveOem = state.isAggressiveOem;
@@ -115,7 +116,8 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
                     : 'Falta autorizar en Notificaciones',
                 isValid: isPermissionGranted,
                 actionLabel: isPermissionGranted ? null : 'Activar',
-                onAction: () => context.read<CaptureCubit>().requestPermission(),
+                onAction: () =>
+                    context.read<CaptureCubit>().requestPermission(),
               ),
 
               _ChecklistItem(
@@ -206,7 +208,8 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
                     title: '¡Te acaban de yapear!',
                     body: 'Juan Pérez te envió S/ 25.00',
                     receivedAt: DateTime.now(),
-                    notificationHash: 'fake_test_${DateTime.now().millisecondsSinceEpoch}',
+                    notificationHash:
+                        'fake_test_${DateTime.now().millisecondsSinceEpoch}',
                   );
                   // Disparamos la prueba directamente al cubit
                   context.read<CaptureCubit>().simulateNotification(fakeRaw);
@@ -250,22 +253,30 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
   String _getHealthTitle(CaptureHealth health) {
     return switch (health) {
       CaptureHealth.ready => 'Captura Activa y Óptima',
-      CaptureHealth.notificationPermissionMissing => 'Falta Permiso de Notificaciones',
+      CaptureHealth.notificationPermissionMissing =>
+        'Falta Permiso de Notificaciones',
       CaptureHealth.listenerDisconnected => 'Servicio Desconectado',
       CaptureHealth.batteryRestricted => 'Batería Restringida',
-      CaptureHealth.manufacturerConfigurationRequired => 'Ajuste de Inicio Automático Pendiente',
+      CaptureHealth.manufacturerConfigurationRequired =>
+        'Ajuste de Inicio Automático Pendiente',
       CaptureHealth.processingError => 'Error en la Captura',
     };
   }
 
   String _getHealthSubtitle(CaptureHealth health) {
     return switch (health) {
-      CaptureHealth.ready => 'Las notificaciones financieras se registrarán automáticamente.',
-      CaptureHealth.notificationPermissionMissing => 'Concedé acceso a notificaciones para continuar.',
-      CaptureHealth.listenerDisconnected => 'Android desvinculó el listener. Abre los ajustes para reconectar.',
-      CaptureHealth.batteryRestricted => 'El ahorro de batería puede suspender la app cuando esté cerrada.',
-      CaptureHealth.manufacturerConfigurationRequired => 'Configurá el inicio automático en tu dispositivo.',
-      CaptureHealth.processingError => 'Ocurrió un inconveniente al inicializar el servicio.',
+      CaptureHealth.ready =>
+        'Las notificaciones financieras se registrarán automáticamente.',
+      CaptureHealth.notificationPermissionMissing =>
+        'Concedé acceso a notificaciones para continuar.',
+      CaptureHealth.listenerDisconnected =>
+        'Android desvinculó el listener. Abre los ajustes para reconectar.',
+      CaptureHealth.batteryRestricted =>
+        'El ahorro de batería puede suspender la app cuando esté cerrada.',
+      CaptureHealth.manufacturerConfigurationRequired =>
+        'Configurá el inicio automático en tu dispositivo.',
+      CaptureHealth.processingError =>
+        'Ocurrió un inconveniente al inicializar el servicio.',
     };
   }
 }

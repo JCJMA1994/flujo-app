@@ -146,14 +146,17 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
                         )
                       : const Icon(Icons.sync_rounded),
                   title: const Text('Sincronizar ahora'),
-                  subtitle: const Text('Envía pendientes y recibe movimientos nuevos'),
+                  subtitle: const Text(
+                    'Envía pendientes y recibe movimientos nuevos',
+                  ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _isSyncing ? null : _handleSync,
                 ),
                 ListTile(
                   leading: const Icon(Icons.mark_email_read_rounded),
                   title: const Text('Captura por Correo (iOS & Gmail)'),
-                  subtitle: const Text('Comprobantes de BCP, BBVA, Interbank y Yape'),
+                  subtitle:
+                      const Text('Comprobantes de BCP, BBVA, Interbank y Yape'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -164,7 +167,8 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
                   leading: Icon(Icons.security_rounded),
                   title: Text('Seguridad y Sesión'),
                   subtitle: Text('Token JWT seguro y almacenamiento cifrado'),
-                  trailing: Icon(Icons.verified_user_rounded, color: Colors.green),
+                  trailing:
+                      Icon(Icons.verified_user_rounded, color: Colors.green),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(

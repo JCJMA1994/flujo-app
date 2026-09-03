@@ -32,7 +32,9 @@ void main() {
   });
 
   group('AuthRepositoryImpl', () {
-    test('login guarda sesión localmente y retorna entidad de usuario ante éxito', () async {
+    test(
+        'login guarda sesión localmente y retorna entidad de usuario ante éxito',
+        () async {
       when(
         () => mockRemoteDataSource.login(
           email: 'test@flujo.com',
@@ -61,7 +63,12 @@ void main() {
       final user = (result as Success<User>).value;
       expect(user.id, equals('user-001'));
       expect(user.email, equals('test@flujo.com'));
-      verify(() => mockLocalDataSource.saveSession(token: 'token-xyz', user: tUserModel)).called(1);
+      verify(
+        () => mockLocalDataSource.saveSession(
+          token: 'token-xyz',
+          user: tUserModel,
+        ),
+      ).called(1);
     });
 
     test('register guarda sesión y retorna entidad de usuario', () async {
@@ -105,7 +112,8 @@ void main() {
       verify(() => mockLocalDataSource.clearSession()).called(1);
     });
 
-    test('getCurrentSession retorna null cuando no hay token guardado', () async {
+    test('getCurrentSession retorna null cuando no hay token guardado',
+        () async {
       when(() => mockLocalDataSource.getToken()).thenAnswer((_) async => null);
 
       final result = await repository.getCurrentSession();

@@ -258,7 +258,9 @@ Responde ÚNICAMENTE con el objeto JSON válido.
       return FailureResult(
         e.type == DioExceptionType.connectionError
             ? const NetworkFailure()
-            : ServerFailure(serverMsg ?? e.message ?? 'Error de conexión con Gemini'),
+            : ServerFailure(
+                serverMsg ?? e.message ?? 'Error de conexión con Gemini',
+              ),
       );
     } catch (e) {
       return FailureResult(ParseFailure(e.toString(), rawText: rawText));
@@ -272,7 +274,9 @@ Responde ÚNICAMENTE con el objeto JSON válido.
     final apiKey = await getApiKey();
     if (apiKey == null || apiKey.isEmpty) {
       return const FailureResult(
-        ParseFailure('No se ha configurado la API Key de Gemini en el archivo .env'),
+        ParseFailure(
+          'No se ha configurado la API Key de Gemini en el archivo .env',
+        ),
       );
     }
 
@@ -304,7 +308,9 @@ Responde ÚNICAMENTE con el objeto JSON válido.
       return FailureResult(
         e.type == DioExceptionType.connectionError
             ? const NetworkFailure()
-            : ServerFailure(serverMsg ?? e.message ?? 'Error de conexión con Gemini'),
+            : ServerFailure(
+                serverMsg ?? e.message ?? 'Error de conexión con Gemini',
+              ),
       );
     } catch (e) {
       return FailureResult(ParseFailure(e.toString()));

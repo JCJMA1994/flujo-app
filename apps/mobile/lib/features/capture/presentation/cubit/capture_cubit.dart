@@ -166,8 +166,10 @@ class CaptureCubit extends Cubit<CaptureState> {
           reviewed: expense.confidence >= 0.7,
           parser: expense.bankId ?? 'generic',
           parserVersion: expense.parserVersion,
-          notificationHash: notification.notificationHash ?? expense.notificationHash,
-          rawNotificationId: notification.id?.toString() ?? expense.rawNotificationId?.toString(),
+          notificationHash:
+              notification.notificationHash ?? expense.notificationHash,
+          rawNotificationId: notification.id?.toString() ??
+              expense.rawNotificationId?.toString(),
         );
 
         final saved = await _addTransaction(transaction);
@@ -185,7 +187,8 @@ class CaptureCubit extends Cubit<CaptureState> {
     );
   }
 
-  void simulateNotification(RawNotification notification) => _handle(notification);
+  void simulateNotification(RawNotification notification) =>
+      _handle(notification);
 
   void _onError(Object error) =>
       emit(state.copyWith(failure: ParseFailure(error.toString())));

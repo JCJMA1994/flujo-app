@@ -133,7 +133,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   RawNotification? _createRawFromMap(Map<String, dynamic> data) {
     final package = (data['packageName'] as String? ?? '').toLowerCase();
     final title = data['title'] as String? ?? '';
-    final body = (data['body'] ?? data['content'] ?? data['text'] ?? '') as String;
+    final body =
+        (data['body'] ?? data['content'] ?? data['text'] ?? '') as String;
     final postTime = data['postTime'] as int? ?? data['timestamp'] as int?;
 
     if (!_isValidFinancialNotification(package, title, body)) return null;
@@ -161,7 +162,11 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
     }
   }
 
-  bool _isValidFinancialNotification(String package, String title, String body) {
+  bool _isValidFinancialNotification(
+    String package,
+    String title,
+    String body,
+  ) {
     final pkg = package.toLowerCase();
     final isBankPackage = kBankPackages.contains(pkg) ||
         pkg.contains('yape') ||
@@ -179,7 +184,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<void> markNotificationsProcessed(List<int> ids) async {
     if (!isSupported || ids.isEmpty) return;
     try {
-      await _channel.invokeMethod('markRawNotificationsProcessed', {'ids': ids});
+      await _channel
+          .invokeMethod('markRawNotificationsProcessed', {'ids': ids});
     } catch (_) {}
   }
 
@@ -197,7 +203,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<Map<String, dynamic>> getDiagnostics() async {
     if (!isSupported) return {};
     try {
-      final res = await _channel.invokeMethod<Map<dynamic, dynamic>>('getCaptureDiagnostics');
+      final res = await _channel
+          .invokeMethod<Map<dynamic, dynamic>>('getCaptureDiagnostics');
       if (res != null) {
         return Map<String, dynamic>.from(res);
       }
@@ -209,7 +216,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<bool> hasPermission() async {
     if (!isSupported) return false;
     try {
-      final nativeGranted = await _channel.invokeMethod<bool>('isNotificationPermissionGranted');
+      final nativeGranted =
+          await _channel.invokeMethod<bool>('isNotificationPermissionGranted');
       if (nativeGranted ?? false) return true;
       return await NotificationListenerService.isPermissionGranted();
     } catch (_) {
@@ -221,7 +229,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<bool> requestPermission() async {
     if (!isSupported) return false;
     try {
-      final nativeResult = await _channel.invokeMethod<bool>('requestNotificationPermission');
+      final nativeResult =
+          await _channel.invokeMethod<bool>('requestNotificationPermission');
       if (nativeResult ?? false) return true;
       return await NotificationListenerService.requestPermission();
     } catch (_) {
@@ -233,7 +242,9 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<bool> requestIgnoreBatteryOptimizations() async {
     if (!isSupported) return false;
     try {
-      return await _channel.invokeMethod<bool>('requestIgnoreBatteryOptimizations') ?? false;
+      return await _channel
+              .invokeMethod<bool>('requestIgnoreBatteryOptimizations') ??
+          false;
     } catch (_) {
       return false;
     }
@@ -243,7 +254,9 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<bool> isIgnoringBatteryOptimizations() async {
     if (!isSupported) return true;
     try {
-      return await _channel.invokeMethod<bool>('isIgnoringBatteryOptimizations') ?? false;
+      return await _channel
+              .invokeMethod<bool>('isIgnoringBatteryOptimizations') ??
+          false;
     } catch (_) {
       return false;
     }
@@ -253,7 +266,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   Future<bool> openAutostartSettings() async {
     if (!isSupported) return false;
     try {
-      return await _channel.invokeMethod<bool>('openAutostartSettings') ?? false;
+      return await _channel.invokeMethod<bool>('openAutostartSettings') ??
+          false;
     } catch (_) {
       return false;
     }

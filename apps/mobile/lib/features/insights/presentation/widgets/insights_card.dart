@@ -11,7 +11,8 @@ class InsightsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/ ');
+    final currencyFormat =
+        NumberFormat.currency(locale: 'es_PE', symbol: 'S/ ');
 
     return BlocBuilder<InsightsCubit, InsightsState>(
       builder: (context, state) {
@@ -85,7 +86,8 @@ class InsightsCard extends StatelessWidget {
                     value: projection.progressPercentage,
                     minHeight: 6,
                     backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
+                    valueColor:
+                        AlwaysStoppedAnimation(theme.colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 12),

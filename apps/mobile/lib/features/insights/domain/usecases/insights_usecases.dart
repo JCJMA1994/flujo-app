@@ -5,7 +5,8 @@ class DetectRecurringExpenses {
   const DetectRecurringExpenses();
 
   List<RecurringExpense> call(List<Transaction> transactions) {
-    final expenses = transactions.where((t) => t.isExpense && t.amount > 0).toList();
+    final expenses =
+        transactions.where((t) => t.isExpense && t.amount > 0).toList();
 
     // Agrupamos por comercio normalizado
     final byMerchant = <String, List<Transaction>>{};
@@ -26,13 +27,15 @@ class DetectRecurringExpenses {
 
       final intervals = <int>[];
       for (var i = 0; i < list.length - 1; i++) {
-        final diffDays = list[i + 1].occurredAt.difference(list[i].occurredAt).inDays.abs();
+        final diffDays =
+            list[i + 1].occurredAt.difference(list[i].occurredAt).inDays.abs();
         intervals.add(diffDays);
       }
 
       if (intervals.isEmpty) continue;
 
-      final averageInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+      final averageInterval =
+          intervals.reduce((a, b) => a + b) / intervals.length;
 
       final isMonthly = averageInterval >= 24 && averageInterval <= 36;
       final isWeekly = averageInterval >= 5 && averageInterval <= 10;
@@ -50,9 +53,14 @@ class DetectRecurringExpenses {
       if (!isConsistentAmount) continue;
 
       final lastTx = list.last;
-      final frequency = isMonthly ? RecurringFrequency.monthly : RecurringFrequency.weekly;
+      final frequency =
+          isMonthly ? RecurringFrequency.monthly : RecurringFrequency.weekly;
       final nextDate = isMonthly
-          ? DateTime(lastTx.occurredAt.year, lastTx.occurredAt.month + 1, lastTx.occurredAt.day)
+          ? DateTime(
+              lastTx.occurredAt.year,
+              lastTx.occurredAt.month + 1,
+              lastTx.occurredAt.day,
+            )
           : lastTx.occurredAt.add(const Duration(days: 7));
 
       detected.add(
@@ -85,13 +93,17 @@ class CalculateMonthlyProjection {
     DateTime? now,
   }) {
     final effectiveNow = now ?? DateTime.now();
-    final daysInMonth = DateTime(targetMonth.year, targetMonth.month + 1, 0).day;
+    final daysInMonth =
+        DateTime(targetMonth.year, targetMonth.month + 1, 0).day;
 
-    final expenses = currentMonthTransactions.where((t) => t.isExpense && t.amount > 0).toList();
+    final expenses = currentMonthTransactions
+        .where((t) => t.isExpense && t.amount > 0)
+        .toList();
     final currentTotal = expenses.fold<double>(0, (sum, t) => sum + t.amount);
 
     int daysElapsed;
-    if (effectiveNow.year == targetMonth.year && effectiveNow.month == targetMonth.month) {
+    if (effectiveNow.year == targetMonth.year &&
+        effectiveNow.month == targetMonth.month) {
       daysElapsed = effectiveNow.day.clamp(1, daysInMonth);
     } else if (targetMonth.isBefore(effectiveNow)) {
       daysElapsed = daysInMonth;
@@ -105,7 +117,9 @@ class CalculateMonthlyProjection {
     double pendingRecurringTotal = 0;
     for (final recurring in recurringExpenses) {
       final alreadyCharged = expenses.any(
-        (t) => t.merchant.trim().toLowerCase() == recurring.merchant.trim().toLowerCase(),
+        (t) =>
+            t.merchant.trim().toLowerCase() ==
+            recurring.merchant.trim().toLowerCase(),
       );
 
       if (!alreadyCharged) {
@@ -120,7 +134,8 @@ class CalculateMonthlyProjection {
       final remainingDays = daysInMonth - daysElapsed;
       // Proyección: ritmo actual durante los días restantes + cobros pendientes identificados
       final variableProjected = dailyBurnRate * remainingDays;
-      projectedTotal = currentTotal + variableProjected + (pendingRecurringTotal * 0.3);
+      projectedTotal =
+          currentTotal + variableProjected + (pendingRecurringTotal * 0.3);
     }
 
     return MonthlyProjection(
@@ -129,7 +144,8 @@ class CalculateMonthlyProjection {
       daysElapsed: daysElapsed,
       daysInMonth: daysInMonth,
       dailyBurnRate: double.parse(dailyBurnRate.toStringAsFixed(2)),
-      pendingRecurringTotal: double.parse(pendingRecurringTotal.toStringAsFixed(2)),
+      pendingRecurringTotal:
+          double.parse(pendingRecurringTotal.toStringAsFixed(2)),
     );
   }
 }
