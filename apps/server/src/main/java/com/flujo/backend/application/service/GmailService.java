@@ -202,6 +202,10 @@ public class GmailService {
         return 1;
     }
 
+    public void handleHistoryNotification(String userId, String historyId) {
+        log.info("Sincronizando historial de correos para userId {} a partir de historyId {}", userId, historyId);
+    }
+
     private String toFormData(Map<String, String> params) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {

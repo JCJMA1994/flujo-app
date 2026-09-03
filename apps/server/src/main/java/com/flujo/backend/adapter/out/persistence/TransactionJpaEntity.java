@@ -61,6 +61,44 @@ public class TransactionJpaEntity {
 
     public TransactionJpaEntity() {}
 
+    public TransactionJpaEntity(
+        String id,
+        String userId,
+        Double amount,
+        String currency,
+        String merchant,
+        OffsetDateTime occurredAt,
+        String categoryId,
+        String source,
+        String scope,
+        String type,
+        Double confidence,
+        Boolean reviewed,
+        String rawText,
+        String parser,
+        String parserVersion,
+        String notificationHash,
+        OffsetDateTime syncedAt
+    ) {
+        this.id = id;
+        this.userId = userId;
+        this.amount = amount;
+        this.currency = currency;
+        this.merchant = merchant;
+        this.occurredAt = occurredAt;
+        this.categoryId = categoryId;
+        this.source = source;
+        this.scope = scope;
+        this.type = type;
+        this.confidence = confidence;
+        this.reviewed = reviewed;
+        this.rawText = rawText;
+        this.parser = parser;
+        this.parserVersion = parserVersion;
+        this.notificationHash = notificationHash;
+        this.syncedAt = syncedAt;
+    }
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

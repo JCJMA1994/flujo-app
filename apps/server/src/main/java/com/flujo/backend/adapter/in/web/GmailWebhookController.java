@@ -64,7 +64,7 @@ public class GmailWebhookController {
             if (emailAddress != null) {
                 Optional<UserIntegrationJpaEntity> userOpt = userIntegrationRepository.findByEmailAndProvider(emailAddress, "GMAIL");
                 if (userOpt.isPresent() && Boolean.TRUE.equals(userOpt.get().getActive())) {
-                    log.info("Procesando actualización de correo para userId: {}", userOpt.get().getUserId());
+                    gmailService.handleHistoryNotification(userOpt.get().getUserId(), historyId);
                 }
             }
 
