@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../capture/presentation/cubit/capture_cubit.dart';
+import '../../../insights/presentation/cubit/insights_cubit.dart';
+import '../../../insights/presentation/widgets/insights_card.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 import '../cubit/dashboard_cubit.dart';
@@ -24,6 +26,7 @@ class DashboardPage extends StatelessWidget {
           create: (_) => getIt<TransactionBloc>()
             ..add(const TransactionsSubscriptionRequested()),
         ),
+        BlocProvider(create: (_) => getIt<InsightsCubit>()..start()),
       ],
       child: const _DashboardView(),
     );
@@ -105,8 +108,14 @@ class _DashboardView extends StatelessWidget {
         ],
       ),
       body: BlocConsumer<DashboardCubit, DashboardState>(
-        listenWhen: (prev, curr) => prev.failure != curr.failure,
+        listenWhen: (prev, curr) =>
+            prev.failure != curr.failure ||
+            prev.summary?.month != curr.summary?.month,
         listener: (context, state) {
+          final summary = state.summary;
+          if (summary != null) {
+            context.read<InsightsCubit>().updateMonth(summary.month);
+          }
           final failure = state.failure;
           if (failure == null) return;
           ScaffoldMessenger.of(context)
@@ -175,6 +184,8 @@ class _SummaryView extends StatelessWidget {
                               const SizedBox(height: 14),
                               _VariationBanner(variation: summary.variation!),
                             ],
+                            const SizedBox(height: 14),
+                            const InsightsCard(),
                             const SizedBox(height: 20),
                             const _QuickActionsCard(),
                           ],
@@ -217,6 +228,8 @@ class _SummaryView extends StatelessWidget {
                     const SizedBox(height: 14),
                     _VariationBanner(variation: summary.variation!),
                   ],
+                  const SizedBox(height: 14),
+                  const InsightsCard(),
                   const SizedBox(height: 24),
                   _CategorySectionHeader(count: summary.byCategory.length),
                   const SizedBox(height: 10),

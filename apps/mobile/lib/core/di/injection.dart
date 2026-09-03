@@ -16,6 +16,8 @@ import '../../features/capture/data/parsers/bank_parsers.dart';
 import '../../features/capture/data/parsers/expense_parsing_pipeline.dart';
 import '../../features/capture/data/services/share_intent_service.dart';
 import '../../features/capture/presentation/cubit/capture_cubit.dart';
+import '../../features/insights/domain/usecases/insights_usecases.dart';
+import '../../features/insights/presentation/cubit/insights_cubit.dart';
 import '../../features/transactions/data/datasources/drift_transaction_local_datasource.dart';
 import '../../features/transactions/data/datasources/transaction_local_datasource.dart';
 import '../../features/transactions/data/datasources/transaction_remote_datasource.dart';
@@ -120,6 +122,8 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => ReviewTransaction(getIt()))
     ..registerLazySingleton(() => DeleteTransaction(getIt()))
     ..registerLazySingleton(() => SyncPendingTransactions(getIt()))
+    ..registerLazySingleton(DetectRecurringExpenses.new)
+    ..registerLazySingleton(CalculateMonthlyProjection.new)
 
     // ---------- Blocs y Cubits ----------
     ..registerLazySingleton(
@@ -139,6 +143,13 @@ Future<void> configureDependencies() async {
       ),
     )
     ..registerFactory(() => DashboardCubit(watchMonthlySummary: getIt()))
+    ..registerFactory(
+      () => InsightsCubit(
+        repository: getIt(),
+        detectRecurringExpenses: getIt(),
+        calculateMonthlyProjection: getIt(),
+      ),
+    )
     // CaptureCubit es Singleton porque gestiona la suscripción persistente
     // en segundo plano para interceptar notificaciones de bancos y Yape.
     ..registerLazySingleton(
