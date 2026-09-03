@@ -150,6 +150,16 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _isSyncing ? null : _handleSync,
                 ),
+                ListTile(
+                  leading: const Icon(Icons.mark_email_read_rounded),
+                  title: const Text('Captura por Correo (iOS & Gmail)'),
+                  subtitle: const Text('Comprobantes de BCP, BBVA, Interbank y Yape'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.go(AppRoutes.captureOnboarding);
+                  },
+                ),
                 const ListTile(
                   leading: Icon(Icons.security_rounded),
                   title: Text('Seguridad y Sesión'),

@@ -302,20 +302,76 @@ class _UnsupportedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(24),
+    final theme = Theme.of(context);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'En iOS conecta tu correo',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.mark_email_read_rounded,
+              size: 40,
+              color: theme.colorScheme.primary,
+            ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 20),
           Text(
-            'iOS no permite que una app lea las notificaciones de otra. '
-            'Conecta el correo donde recibes los avisos de tu banco y '
-            'Flujo los registrará igual.',
+            'Captura automática en iOS',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'iOS no permite que una aplicación lea las notificaciones de otra en segundo plano. '
+            'Sin embargo, Flujo puede capturar tus compras y pagos directamente desde los comprobantes '
+            'que BCP, BBVA, Interbank y Yape te envían al correo.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const _Bullet(
+            icon: Icons.security_rounded,
+            text: 'Conexión oficial con Google OAuth 2.0 en modo solo lectura.',
+          ),
+          const _Bullet(
+            icon: Icons.shield_outlined,
+            text: 'Privacidad total: solo filtramos y procesamos correos de dominios bancarios verificados.',
+          ),
+          const _Bullet(
+            icon: Icons.sync_rounded,
+            text: 'Sincronización en la nube mediante webhooks seguros de Google Cloud Pub/Sub.',
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Abriendo autorización segura de Google...'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.account_circle_outlined),
+              label: const Text('Vincular cuenta de Gmail'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
           ),
         ],
       ),
