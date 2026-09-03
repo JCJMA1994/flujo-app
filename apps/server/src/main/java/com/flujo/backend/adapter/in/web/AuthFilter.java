@@ -64,6 +64,9 @@ public class AuthFilter extends OncePerRequestFilter {
         if (path.startsWith("/v1/chat")) {
             return true;
         }
+        if (path.startsWith("/v1/integrations/gmail") && !path.contains("/callback")) {
+            return true;
+        }
         if (path.equals("/v1/auth/me")) {
             return true;
         }
