@@ -1,0 +1,37 @@
+# Mobile (Flutter / Dart / Android)
+apps/mobile/.dart_tool/
+apps/mobile/.packages
+apps/mobile/build/
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/.gradle/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/pubspec.lock
+apps/mobile/coverage/
+apps/mobile/.env
+apps/mobile/.env.*
+apps/mobile/android/local.properties
+apps/mobile/android/key.properties
+apps/mobile/ios/Pods/
+apps/mobile/ios/.symlinks/
+**/build/
+**/.gradle/
+
+# Generated Dart
+*.g.dart
+*.freezed.dart
+
+# Server (Java / Maven / Spring Boot)
+apps/server/target/
+**/target/
+apps/server/.mvn/
+apps/server/*.log
+
+# IDE & OS
+.idea/
+.vscode/
+*.iml
+*.jks
+.DS_Store
+Thumbs.db
