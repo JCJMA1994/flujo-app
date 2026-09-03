@@ -1,0 +1,43 @@
+databases:
+  - name: flujo-db
+    databaseName: flujo_db
+    user: flujo_user
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: flujo-backend
+    runtime: docker
+    dockerfilePath: apps/server/Dockerfile
+    dockerContext: apps/server
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: flujo-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: flujo-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: flujo-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: flujo-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: flujo-db
+          property: password
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
