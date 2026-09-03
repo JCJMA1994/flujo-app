@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Errores del dominio. No conocen HTTP, SQL ni ninguna tecnología concreta.
-abstract class Failure extends Equatable {
+abstract class Failure extends Equatable implements Exception {
   const Failure(this.message);
 
   final String message;
@@ -34,4 +34,8 @@ class ParseFailure extends Failure {
 
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
+}
+
+class AuthFailure extends Failure {
+  const AuthFailure([super.message = 'Error de autenticación']);
 }

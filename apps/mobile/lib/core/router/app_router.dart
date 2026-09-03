@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/capture/presentation/pages/capture_onboarding_page.dart';
 import '../../features/capture/presentation/pages/user_rules_page.dart';
 import '../../features/onboarding/presentation/pages/initial_onboarding_page.dart';
@@ -13,6 +15,8 @@ class AppRoutes {
   const AppRoutes._();
 
   static const splash = '/splash';
+  static const login = '/login';
+  static const register = '/register';
   static const onboarding = '/onboarding';
   static const dashboard = '/';
   static const transactions = '/transactions';
@@ -26,6 +30,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.splash,
       builder: (_, __) => const SplashPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (_, __) => const LoginPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.register,
+      builder: (_, __) => const RegisterPage(),
     ),
     GoRoute(
       path: AppRoutes.onboarding,

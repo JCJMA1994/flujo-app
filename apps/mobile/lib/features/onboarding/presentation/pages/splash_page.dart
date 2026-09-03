@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -71,9 +73,19 @@ class _SplashPageState extends State<SplashPage>
   Future<void> _navigateNext() async {
     const storage = FlutterSecureStorage();
     final seen = await storage.read(key: 'has_seen_onboarding');
+    final authCubit = getIt<AuthCubit>();
+    await authCubit.checkSession();
+
     await Future<void>.delayed(const Duration(milliseconds: 1800));
     if (!mounted) return;
-    context.go(seen == 'true' ? AppRoutes.dashboard : AppRoutes.onboarding);
+
+    if (authCubit.state.isAuthenticated) {
+      context.go(AppRoutes.dashboard);
+    } else if (seen != 'true') {
+      context.go(AppRoutes.onboarding);
+    } else {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override

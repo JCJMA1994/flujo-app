@@ -3,6 +3,12 @@ import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/auth_usecases.dart';
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/capture/data/datasources/ai_categorizer_datasource.dart';
 import '../../features/capture/data/datasources/gemini_ai_categorizer_datasource.dart';
 import '../../features/capture/data/datasources/notification_listener_datasource.dart';
@@ -40,6 +46,12 @@ Future<void> configureDependencies() async {
     )
 
     // ---------- Datasources ----------
+    ..registerLazySingleton<AuthLocalDataSource>(
+      () => AuthLocalDataSourceImpl(storage: getIt()),
+    )
+    ..registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(dio: getIt()),
+    )
     ..registerLazySingleton<TransactionLocalDataSource>(
       () => DriftTransactionLocalDataSource(getIt()),
     )
@@ -86,12 +98,22 @@ Future<void> configureDependencies() async {
 
     // ---------- Repositorios ----------
     // Singleton: el stream local debe ser compartido entre todos los consumidores.
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+        remoteDataSource: getIt(),
+        localDataSource: getIt(),
+      ),
+    )
     ..registerLazySingleton<TransactionRepository>(
       () => TransactionRepositoryImpl(local: getIt(), remote: getIt()),
     )
 
     // ---------- Casos de uso ----------
     // Sin estado, singleton perezoso.
+    ..registerLazySingleton(() => LoginUseCase(getIt()))
+    ..registerLazySingleton(() => RegisterUseCase(getIt()))
+    ..registerLazySingleton(() => LogoutUseCase(getIt()))
+    ..registerLazySingleton(() => GetAuthSessionUseCase(getIt()))
     ..registerLazySingleton(() => WatchTransactions(getIt()))
     ..registerLazySingleton(() => WatchMonthlySummary(getIt()))
     ..registerLazySingleton(() => AddTransaction(getIt()))
@@ -99,6 +121,14 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => DeleteTransaction(getIt()))
 
     // ---------- Blocs y Cubits ----------
+    ..registerLazySingleton(
+      () => AuthCubit(
+        loginUseCase: getIt(),
+        registerUseCase: getIt(),
+        logoutUseCase: getIt(),
+        getAuthSessionUseCase: getIt(),
+      ),
+    )
     // SIEMPRE factory. Un singleton sobrevive al widget que lo usa, se queda
     // con streams abiertos y termina emitiendo sobre un contexto muerto.
     ..registerFactory(
