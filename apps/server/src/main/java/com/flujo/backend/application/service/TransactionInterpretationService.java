@@ -5,6 +5,7 @@ import com.flujo.backend.domain.model.FinancialNotification;
 import com.flujo.backend.domain.model.InterpretationResult;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,7 +34,7 @@ public class TransactionInterpretationService {
             FinancialNotification notification = new FinancialNotification(
                 rawText,
                 packageName,
-                java.time.OffsetDateTime.now()
+                OffsetDateTime.now()
             );
             return aiCategorizer.interpret(notification);
         });

@@ -1,6 +1,5 @@
 package com.flujo.backend.adapter.in.web;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flujo.backend.adapter.out.persistence.TransactionJpaEntity;
 import com.flujo.backend.application.service.TransactionSyncService;
 import org.springframework.format.annotation.DateTimeFormat;
