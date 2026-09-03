@@ -1,5 +1,6 @@
 package com.flujo.backend.adapter.in.web;
 
+import com.flujo.backend.application.service.JwtTokenService;
 import com.flujo.backend.application.service.TransactionInterpretationService;
 import com.flujo.backend.domain.model.InterpretationResult;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class CaptureControllerTest {
 
     @MockBean
     private TransactionInterpretationService interpretationService;
+
+    @MockBean
+    private JwtTokenService jwtTokenService;
 
     @Test
     void shouldReturnInterpretedTransactionSuccessfully() throws Exception {

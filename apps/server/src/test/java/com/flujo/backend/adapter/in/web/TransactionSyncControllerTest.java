@@ -1,6 +1,7 @@
 package com.flujo.backend.adapter.in.web;
 
 import com.flujo.backend.adapter.out.persistence.TransactionJpaEntity;
+import com.flujo.backend.application.service.JwtTokenService;
 import com.flujo.backend.application.service.TransactionSyncService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ class TransactionSyncControllerTest {
 
     @MockBean
     private TransactionSyncService syncService;
+
+    @MockBean
+    private JwtTokenService jwtTokenService;
 
     @Test
     void shouldAcknowledgeSyncedTransactions() throws Exception {
