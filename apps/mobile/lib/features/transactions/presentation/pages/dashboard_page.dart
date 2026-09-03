@@ -10,6 +10,7 @@ import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../widgets/transaction_form_sheet.dart';
+import '../widgets/user_profile_sheet.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -95,6 +96,11 @@ class _DashboardView extends StatelessWidget {
                 onPressed: () => context.go(AppRoutes.captureOnboarding),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Perfil y sincronización',
+            onPressed: () => UserProfileSheet.show(context),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/capture/data/services/share_intent_service.dart';
 import 'features/capture/presentation/cubit/capture_cubit.dart';
 
@@ -32,11 +33,13 @@ class FlujoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Proveemos CaptureCubit como Singleton a nivel de raíz con BlocProvider.value
-    // para que la suscripción de escucha de Yape y bancos nunca se destruya
-    // al navegar entre pantallas.
-    return BlocProvider.value(
-      value: getIt<CaptureCubit>(),
+    // Proveemos CaptureCubit y AuthCubit a nivel de raíz para mantener
+    // el estado de autenticación y captura sincronizado en toda la app.
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: getIt<CaptureCubit>()),
+        BlocProvider.value(value: getIt<AuthCubit>()),
+      ],
       child: MaterialApp.router(
         scaffoldMessengerKey: ShareIntentService.scaffoldMessengerKey,
         title: 'Flujo: Gastos & Yape',

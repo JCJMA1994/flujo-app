@@ -119,6 +119,7 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => AddTransaction(getIt()))
     ..registerLazySingleton(() => ReviewTransaction(getIt()))
     ..registerLazySingleton(() => DeleteTransaction(getIt()))
+    ..registerLazySingleton(() => SyncPendingTransactions(getIt()))
 
     // ---------- Blocs y Cubits ----------
     ..registerLazySingleton(

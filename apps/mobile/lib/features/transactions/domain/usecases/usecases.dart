@@ -68,3 +68,11 @@ class DeleteTransaction {
 
   Future<Result<void>> call(String id) => _repository.deleteTransaction(id);
 }
+
+class SyncPendingTransactions {
+  const SyncPendingTransactions(this._repository);
+
+  final TransactionRepository _repository;
+
+  Future<Result<void>> call() => _repository.syncPending();
+}
