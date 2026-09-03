@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface SpringDataTransactionRepository extends JpaRepository<TransactionJpaEntity, String> {
     List<TransactionJpaEntity> findBySyncedAtAfterOrderByOccurredAtDesc(OffsetDateTime since);
+    List<TransactionJpaEntity> findByUserIdAndSyncedAtAfterOrderByOccurredAtDesc(String userId, OffsetDateTime since);
+    List<TransactionJpaEntity> findByUserIdOrderByOccurredAtDesc(String userId);
 }

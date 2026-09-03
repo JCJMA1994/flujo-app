@@ -12,5 +12,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: flujo_server
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/flujo_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgrespassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+
 volumes:
   postgres_data:

@@ -29,7 +29,7 @@ class TransactionSyncControllerTest {
 
     @Test
     void shouldAcknowledgeSyncedTransactions() throws Exception {
-        when(syncService.syncTransactions(any())).thenReturn(List.of("tx-123", "tx-456"));
+        when(syncService.syncTransactions(any(), any())).thenReturn(List.of("tx-123", "tx-456"));
 
         String requestJson = """
             {
@@ -41,6 +41,7 @@ class TransactionSyncControllerTest {
             """;
 
         mockMvc.perform(post("/v1/transactions/sync")
+                .requestAttr(AuthFilter.ATTR_USER_ID, "user-123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
             .andExpect(status().isOk())
@@ -57,9 +58,10 @@ class TransactionSyncControllerTest {
         entity.setCurrency("PEN");
         entity.setMerchant("Supermercado Metro");
 
-        when(syncService.getTransactionsSince(any())).thenReturn(List.of(entity));
+        when(syncService.getTransactionsSince(any(), any())).thenReturn(List.of(entity));
 
         mockMvc.perform(get("/v1/transactions")
+                .requestAttr(AuthFilter.ATTR_USER_ID, "user-123")
                 .param("since", "2026-09-01T00:00:00Z"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value("tx-789"))

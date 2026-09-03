@@ -14,6 +14,9 @@ public class TransactionJpaEntity {
     @Id
     private String id;
 
+    @Column(name = "user_id")
+    private String userId;
+
     @Column(nullable = false)
     private Double amount;
 
@@ -105,4 +108,7 @@ public class TransactionJpaEntity {
 
     public OffsetDateTime getSyncedAt() { return syncedAt; }
     public void setSyncedAt(OffsetDateTime syncedAt) { this.syncedAt = syncedAt; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 }

@@ -31,8 +31,13 @@ public class TransactionSyncController {
     ) {}
 
     @PostMapping("/sync")
-    public ResponseEntity<SyncResponse> sync(@RequestBody SyncRequest request) {
+    public ResponseEntity<SyncResponse> sync(
+        @RequestBody SyncRequest request,
+        jakarta.servlet.http.HttpServletRequest httpRequest
+    ) {
+        String userId = (String) httpRequest.getAttribute(AuthFilter.ATTR_USER_ID);
         List<String> ack = syncService.syncTransactions(
+            userId,
             request.transactions() != null ? request.transactions() : Collections.emptyList()
         );
 
@@ -42,10 +47,12 @@ public class TransactionSyncController {
     @GetMapping
     public ResponseEntity<List<TransactionJpaEntity>> getTransactions(
         @RequestParam(name = "since", required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime since
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime since,
+        jakarta.servlet.http.HttpServletRequest httpRequest
     ) {
+        String userId = (String) httpRequest.getAttribute(AuthFilter.ATTR_USER_ID);
         OffsetDateTime queryTime = since != null ? since : OffsetDateTime.MIN;
-        List<TransactionJpaEntity> result = syncService.getTransactionsSince(queryTime);
+        List<TransactionJpaEntity> result = syncService.getTransactionsSince(userId, queryTime);
         return ResponseEntity.ok(result);
     }
 }

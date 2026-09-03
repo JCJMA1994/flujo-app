@@ -21,6 +21,11 @@ public class TransactionSyncService {
 
     @Transactional
     public List<String> syncTransactions(List<Map<String, Object>> transactionsData) {
+        return syncTransactions(null, transactionsData);
+    }
+
+    @Transactional
+    public List<String> syncTransactions(String userId, List<Map<String, Object>> transactionsData) {
         List<String> acknowledged = new ArrayList<>();
 
         for (Map<String, Object> data : transactionsData) {
@@ -29,6 +34,9 @@ public class TransactionSyncService {
 
             TransactionJpaEntity entity = repository.findById(id).orElseGet(TransactionJpaEntity::new);
             entity.setId(id);
+            if (userId != null) {
+                entity.setUserId(userId);
+            }
             entity.setAmount(data.get("amount") != null ? ((Number) data.get("amount")).doubleValue() : 0.0);
             entity.setCurrency((String) data.getOrDefault("currency", "PEN"));
             entity.setMerchant((String) data.getOrDefault("merchant", ""));
@@ -59,6 +67,13 @@ public class TransactionSyncService {
     }
 
     public List<TransactionJpaEntity> getTransactionsSince(OffsetDateTime since) {
+        return repository.findBySyncedAtAfterOrderByOccurredAtDesc(since);
+    }
+
+    public List<TransactionJpaEntity> getTransactionsSince(String userId, OffsetDateTime since) {
+        if (userId != null && !userId.isBlank()) {
+            return repository.findByUserIdAndSyncedAtAfterOrderByOccurredAtDesc(userId, since);
+        }
         return repository.findBySyncedAtAfterOrderByOccurredAtDesc(since);
     }
 }
