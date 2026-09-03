@@ -5,6 +5,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/capture/presentation/pages/capture_onboarding_page.dart';
 import '../../features/capture/presentation/pages/user_rules_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/onboarding/presentation/pages/initial_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/splash_page.dart';
 import '../../features/transactions/presentation/pages/dashboard_page.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const transactions = '/transactions';
   static const userRules = '/rules';
   static const captureOnboarding = '/capture';
+  static const chat = '/chat';
 }
 
 final appRouter = GoRouter(
@@ -42,6 +44,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.onboarding,
       builder: (_, __) => const InitialOnboardingPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.chat,
+      builder: (_, __) => const ChatPage(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => AdaptiveNavigationShell(

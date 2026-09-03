@@ -16,6 +16,11 @@ import '../../features/capture/data/parsers/bank_parsers.dart';
 import '../../features/capture/data/parsers/expense_parsing_pipeline.dart';
 import '../../features/capture/data/services/share_intent_service.dart';
 import '../../features/capture/presentation/cubit/capture_cubit.dart';
+import '../../features/chat/data/datasources/chat_remote_datasource.dart';
+import '../../features/chat/data/repositories/chat_repository_impl.dart';
+import '../../features/chat/domain/repositories/chat_repository.dart';
+import '../../features/chat/domain/usecases/ask_financial_assistant.dart';
+import '../../features/chat/presentation/cubit/chat_cubit.dart';
 import '../../features/insights/domain/usecases/insights_usecases.dart';
 import '../../features/insights/presentation/cubit/insights_cubit.dart';
 import '../../features/transactions/data/datasources/drift_transaction_local_datasource.dart';
@@ -98,6 +103,11 @@ Future<void> configureDependencies() async {
       ),
     )
 
+    // ---------- Datasources ----------
+    ..registerLazySingleton<ChatRemoteDataSource>(
+      () => ChatRemoteDataSourceImpl(dio: getIt()),
+    )
+
     // ---------- Repositorios ----------
     // Singleton: el stream local debe ser compartido entre todos los consumidores.
     ..registerLazySingleton<AuthRepository>(
@@ -105,6 +115,9 @@ Future<void> configureDependencies() async {
         remoteDataSource: getIt(),
         localDataSource: getIt(),
       ),
+    )
+    ..registerLazySingleton<ChatRepository>(
+      () => ChatRepositoryImpl(remoteDataSource: getIt()),
     )
     ..registerLazySingleton<TransactionRepository>(
       () => TransactionRepositoryImpl(local: getIt(), remote: getIt()),
@@ -124,6 +137,7 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => SyncPendingTransactions(getIt()))
     ..registerLazySingleton(DetectRecurringExpenses.new)
     ..registerLazySingleton(CalculateMonthlyProjection.new)
+    ..registerLazySingleton(() => AskFinancialAssistant(getIt()))
 
     // ---------- Blocs y Cubits ----------
     ..registerLazySingleton(
@@ -150,6 +164,7 @@ Future<void> configureDependencies() async {
         calculateMonthlyProjection: getIt(),
       ),
     )
+    ..registerFactory(() => ChatCubit(askFinancialAssistant: getIt()))
     // CaptureCubit es Singleton porque gestiona la suscripción persistente
     // en segundo plano para interceptar notificaciones de bancos y Yape.
     ..registerLazySingleton(

@@ -101,6 +101,11 @@ class _DashboardView extends StatelessWidget {
             },
           ),
           IconButton(
+            icon: const Icon(Icons.auto_awesome_rounded),
+            tooltip: 'Asistente Flujo',
+            onPressed: () => context.push(AppRoutes.chat),
+          ),
+          IconButton(
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Perfil y sincronización',
             onPressed: () => UserProfileSheet.show(context),
