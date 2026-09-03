@@ -46,7 +46,7 @@ public class EmailExpenseParser {
     );
 
     private static final Pattern PATTERN_YAPE_INGRESO = Pattern.compile(
-        "(?:te\\s+acaban\\s+de\\s+yapear|recibiste\\s+un\\s+yape)\\s+(?:de\\s+)?(S/\\.?)\\s*([0-9]+(?:\\.[0-9]{2})?)\\s+(?:de\\s+)?([^\\n\\r.,]+)?",
+        "(?:[¡!]?\\s*te\\s+acaban\\s+de\\s+yapear|recibiste\\s+un\\s+yape)[!.]?\\s+(?:de\\s+)?(S/\\.?)\\s*([0-9]+(?:\\.[0-9]{2})?)\\s+(?:de\\s+)?([^\\n\\r.,]+)?",
         Pattern.CASE_INSENSITIVE
     );
 
@@ -140,7 +140,9 @@ public class EmailExpenseParser {
 
     private String cleanMerchant(String raw) {
         if (raw == null) return "Comercio";
-        String cleaned = raw.replaceAll("(?i)(POS|TARJETA|COMPROBANTE|NRO.*)", "").trim();
+        String cleaned = raw.replaceAll("(?i)\\s+con\\s+(?:su|tu|la)?\\s*tarjeta.*", "")
+                            .replaceAll("(?i)(POS|TARJETA|COMPROBANTE|NRO.*)", "")
+                            .trim();
         return cleaned.isEmpty() ? "Comercio" : cleaned;
     }
 
