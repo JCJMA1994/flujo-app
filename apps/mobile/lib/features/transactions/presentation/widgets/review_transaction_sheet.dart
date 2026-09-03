@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:uuid/uuid.dart';
+
 import '../../../../core/di/injection.dart';
+import '../../../capture/domain/entities/parsed_expense.dart';
+import '../../../capture/presentation/cubit/capture_cubit.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/usecases/usecases.dart';
 
@@ -66,9 +70,45 @@ class _ReviewTransactionSheetState extends State<ReviewTransactionSheet> {
       },
       onSuccess: (_) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Movimiento verificado')),
-        );
+        final isCategoryChanged =
+            _selectedCategory != widget.transaction.category;
+        final merchant = widget.transaction.merchant.trim();
+
+        if (isCategoryChanged &&
+            merchant.isNotEmpty &&
+            merchant != 'Sin identificar') {
+          final targetCat = _selectedCategory;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '¿Categorizar siempre "$merchant" como ${targetCat.name}?',
+              ),
+              duration: const Duration(seconds: 6),
+              action: SnackBarAction(
+                label: 'CREAR REGLA',
+                onPressed: () {
+                  final newRule = UserRule(
+                    id: const Uuid().v4(),
+                    matcher: RuleMatcher.merchantContains,
+                    value: merchant,
+                    targetCategoryId: targetCat.id,
+                  );
+                  getIt<CaptureCubit>().addRule(newRule);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Regla creada para "$merchant"'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Movimiento verificado')),
+          );
+        }
       },
     );
   }

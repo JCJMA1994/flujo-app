@@ -192,6 +192,16 @@ class CaptureCubit extends Cubit<CaptureState> {
 
   void loadRules(List<UserRule> rules) => emit(state.copyWith(rules: rules));
 
+  void addRule(UserRule rule) {
+    final updated = List<UserRule>.from(state.rules)..add(rule);
+    emit(state.copyWith(rules: updated));
+  }
+
+  void removeRule(String ruleId) {
+    final updated = state.rules.where((r) => r.id != ruleId).toList();
+    emit(state.copyWith(rules: updated));
+  }
+
   @override
   Future<void> close() async {
     await _subscription?.cancel();
