@@ -58,13 +58,17 @@ class BalanceHeroCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            '${isNetPositive ? '+' : '-'}S/ ${summary.netBalance.abs().toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: -1,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '${isNetPositive ? '+' : '-'}S/ ${summary.netBalance.abs().toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -1,
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -92,25 +96,32 @@ class BalanceHeroCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Ingresos',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.white70,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Ingresos',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.white70,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            'S/ ${summary.incomeTotal.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'S/ ${summary.incomeTotal.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -120,7 +131,7 @@ class BalanceHeroCard extends StatelessWidget {
                   width: 1,
                   color: Colors.white24,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Row(
                     children: [
@@ -137,25 +148,32 @@ class BalanceHeroCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Gastos',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.white70,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Gastos',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.white70,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            'S/ ${summary.total.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'S/ ${summary.total.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -194,14 +212,17 @@ class BalanceHeroCard extends StatelessWidget {
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            Text(
-                              'S/ ${summary.dailyAverage.toStringAsFixed(1)}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'S/ ${summary.dailyAverage.toStringAsFixed(1)}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),

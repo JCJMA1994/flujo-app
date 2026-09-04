@@ -91,9 +91,11 @@ class TransactionRepositoryImpl implements TransactionRepository {
   int _daysElapsedIn(DateTime month) {
     final now = DateTime.now();
     final isCurrentMonth = now.year == month.year && now.month == month.month;
-    return isCurrentMonth
-        ? now.day
-        : DateTime(month.year, month.month + 1, 0).day;
+    if (isCurrentMonth) return now.day;
+    if (DateTime(month.year, month.month).isAfter(DateTime(now.year, now.month))) {
+      return 0;
+    }
+    return DateTime(month.year, month.month + 1, 0).day;
   }
 
   @override

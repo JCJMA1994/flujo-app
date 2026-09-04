@@ -84,8 +84,34 @@ void main() {
             return s.total == 25 &&
                 s.incomeTotal == 3000 &&
                 s.netBalance == 2975 &&
+                s.daysInMonth == 30 &&
+                s.daysRemaining > 0 &&
+                s.recommendedDailyBudget > 0 &&
+                s.expenseRatio > 0 &&
                 s.byCategory.length == 1 &&
                 s.byCategory.first.category == category;
+          }),
+        ),
+      );
+    });
+
+    test('watchMonthlySummary maneja mes futuro correctamente con dailyAverage 0',
+        () async {
+      when(() => local.watchTransactions(any()))
+          .thenAnswer((_) => Stream.value([]));
+
+      final futureMonth = DateTime(2099);
+      final summaryStream = repository.watchMonthlySummary(futureMonth);
+
+      expect(
+        summaryStream,
+        emits(
+          predicate<MonthlySummary>((s) {
+            return s.total == 0 &&
+                s.dailyAverage == 0 &&
+                s.daysInMonth == 31 &&
+                s.daysRemaining == 31 &&
+                s.recommendedDailyBudget == 0;
           }),
         ),
       );

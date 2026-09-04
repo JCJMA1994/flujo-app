@@ -194,11 +194,55 @@ class MonthlySummary extends Equatable {
   /// Balance neto: Ingresos - Gastos.
   double get netBalance => incomeTotal - total;
 
+  /// Días totales en el mes seleccionado.
+  int get daysInMonth => DateTime(month.year, month.month + 1, 0).day;
+
+  /// Días transcurridos en el mes.
+  int get daysElapsed {
+    final now = DateTime.now();
+    final isCurrentMonth = now.year == month.year && now.month == month.month;
+    if (isCurrentMonth) return now.day;
+    if (DateTime(month.year, month.month).isAfter(DateTime(now.year, now.month))) {
+      return 0;
+    }
+    return daysInMonth;
+  }
+
+  /// Días restantes en el mes (para cálculo de presupuesto diario).
+  int get daysRemaining {
+    final now = DateTime.now();
+    final isCurrentMonth = now.year == month.year && now.month == month.month;
+    if (isCurrentMonth) {
+      final rem = daysInMonth - now.day + 1;
+      return rem < 1 ? 1 : rem;
+    }
+    if (DateTime(month.year, month.month).isAfter(DateTime(now.year, now.month))) {
+      return daysInMonth;
+    }
+    return 0;
+  }
+
+  /// Presupuesto diario recomendado para los días restantes del mes.
+  /// Si el balance neto es positivo y quedan días, se divide equitativamente.
+  double get recommendedDailyBudget {
+    if (netBalance <= 0 || daysRemaining <= 0) return 0;
+    return netBalance / daysRemaining;
+  }
+
+  /// Proporción del ingreso mensual consumido por los gastos (0.0 a 1.0+).
+  double get expenseRatio {
+    if (incomeTotal <= 0) return total > 0 ? 1.0 : 0.0;
+    return total / incomeTotal;
+  }
+
   /// Variación de gastos contra el mes anterior. Negativo = gastaste menos.
   double? get variation {
     if (previousMonthTotal == 0) return null;
     return (total - previousMonthTotal) / previousMonthTotal;
   }
+
+  /// Diferencia monetaria absoluta de gastos respecto al mes anterior.
+  double get absoluteVariation => total - previousMonthTotal;
 
   @override
   List<Object?> get props => [

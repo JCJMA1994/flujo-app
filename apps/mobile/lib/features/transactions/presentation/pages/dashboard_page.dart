@@ -12,6 +12,7 @@ import '../bloc/transaction_bloc.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../widgets/dashboard/balance_hero_card.dart';
 import '../widgets/dashboard/category_breakdown_list.dart';
+import '../widgets/dashboard/daily_budget_card.dart';
 import '../widgets/dashboard/month_selector_header.dart';
 import '../widgets/dashboard/quick_actions_card.dart';
 import '../widgets/dashboard/variation_banner.dart';
@@ -180,8 +181,13 @@ class _SummaryView extends StatelessWidget {
                             BalanceHeroCard(summary: summary),
                             if (summary.variation != null) ...[
                               const SizedBox(height: 14),
-                              VariationBanner(variation: summary.variation!),
+                              VariationBanner(
+                                variation: summary.variation!,
+                                absoluteDifference: summary.absoluteVariation,
+                              ),
                             ],
+                            const SizedBox(height: 14),
+                            DailyBudgetCard(summary: summary),
                             const SizedBox(height: 14),
                             const InsightsCard(),
                             const SizedBox(height: 20),
@@ -222,8 +228,13 @@ class _SummaryView extends StatelessWidget {
                   BalanceHeroCard(summary: summary),
                   if (summary.variation != null) ...[
                     const SizedBox(height: 14),
-                    VariationBanner(variation: summary.variation!),
+                    VariationBanner(
+                      variation: summary.variation!,
+                      absoluteDifference: summary.absoluteVariation,
+                    ),
                   ],
+                  const SizedBox(height: 14),
+                  DailyBudgetCard(summary: summary),
                   const SizedBox(height: 14),
                   const InsightsCard(),
                   const SizedBox(height: 24),
