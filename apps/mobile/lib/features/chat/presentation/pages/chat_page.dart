@@ -120,73 +120,78 @@ class _ChatViewState extends State<_ChatView> {
             prev.messages != curr.messages ||
             prev.activeChips != curr.activeChips,
         builder: (context, state) {
-          return Column(
-            children: [
-              Expanded(
-                child: state.messages.isEmpty
-                    ? _EmptyChatWelcome(onChipSelected: _handleSend)
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: state.messages.length,
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: state.messages.isEmpty
+                        ? _EmptyChatWelcome(onChipSelected: _handleSend)
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: state.messages.length,
+                            itemBuilder: (context, index) {
+                              final msg = state.messages[index];
+                              return _MessageBubble(message: msg);
+                            },
+                          ),
+                  ),
+                  if (state.status == ChatStatus.loading) ...[
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Analizando tus movimientos...',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (state.activeChips.isNotEmpty) ...[
+                    Container(
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: state.activeChips.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
                         itemBuilder: (context, index) {
-                          final msg = state.messages[index];
-                          return _MessageBubble(message: msg);
+                          final chip = state.activeChips[index];
+                          return ActionChip(
+                            label: Text(chip),
+                            onPressed: () => _handleSend(chip),
+                            avatar: const Icon(Icons.touch_app_outlined, size: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          );
                         },
                       ),
-              ),
-              if (state.status == ChatStatus.loading) ...[
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Row(
-                    children: [
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Analizando tus movimientos...',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  _InputField(
+                    controller: _controller,
+                    onSubmitted: _handleSend,
+                    isLoading: state.status == ChatStatus.loading,
                   ),
-                ),
-              ],
-              if (state.activeChips.isNotEmpty) ...[
-                Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: state.activeChips.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final chip = state.activeChips[index];
-                      return ActionChip(
-                        label: Text(chip),
-                        onPressed: () => _handleSend(chip),
-                        avatar: const Icon(Icons.touch_app_outlined, size: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              _InputField(
-                controller: _controller,
-                onSubmitted: _handleSend,
-                isLoading: state.status == ChatStatus.loading,
+                ],
               ),
-            ],
+            ),
           );
         },
       ),

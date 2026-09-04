@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/widgets/flujo_logo.dart';
 import '../cubit/capture_cubit.dart';
 
 /// El permiso de lectura de notificaciones asusta si se pide en frío.
@@ -70,24 +71,49 @@ class _CaptureOnboardingViewState extends State<_CaptureOnboardingView>
 
           final isGranted = state.permission == CapturePermission.granted;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Deja que Flujo anote por ti',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Detecta automáticamente cada Yape, Yape Empresa, Plin y consumo bancario usando IA.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 680),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const FlujoLogo(size: 48, showGlow: true),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Deja que Flujo anote por ti',
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              Text(
+                                'IA en segundo plano para Yape, Plin y bancos',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Detecta automáticamente cada Yape, Yape Empresa, Plin y consumo bancario usando IA.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
                 const SizedBox(height: 24),
                 const _Bullet(
                   icon: Icons.flash_on_rounded,
@@ -217,7 +243,9 @@ class _CaptureOnboardingViewState extends State<_CaptureOnboardingView>
                 ),
               ],
             ),
-          );
+          ),
+        ),
+      );
         },
       ),
     );

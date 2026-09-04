@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/widgets/flujo_logo.dart';
 import '../../domain/entities/parsed_expense.dart';
 import '../cubit/capture_cubit.dart';
 
@@ -24,7 +25,14 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Diagnóstico de Captura'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlujoLogo(size: 24, showGlow: true),
+            SizedBox(width: 8),
+            Text('Diagnóstico de Captura'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -53,9 +61,12 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
           final manufacturer = diag['manufacturer']?.toString() ?? 'Android';
           final model = diag['model']?.toString() ?? '';
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
               // ── Tarjeta de Estado General ──
               Card(
                 color: _getHealthColor(state.health).withValues(alpha: 0.12),
@@ -222,8 +233,10 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
                 },
               ),
             ],
-          );
-        },
+          ),
+        ),
+      );
+    },
       ),
     );
   }

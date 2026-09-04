@@ -34,6 +34,7 @@ class CaptureCubit extends Cubit<CaptureState> {
   final LocalNotificationService? _notificationService;
   final Uuid _uuid;
 
+  final _recentCapturedKeys = <String, DateTime>{};
   StreamSubscription<void>? _subscription;
 
   Future<void> checkPermission() async {
@@ -143,6 +144,26 @@ class CaptureCubit extends Cubit<CaptureState> {
         emit(state.copyWith(unrecognizedCount: state.unrecognizedCount + 1));
       },
       onSuccess: (expense) async {
+        final now = DateTime.now();
+        // Limpieza de claves antiguas (> 10 minutos)
+        _recentCapturedKeys.removeWhere(
+          (_, time) => now.difference(time) > const Duration(minutes: 10),
+        );
+
+        final notifHash =
+            notification.notificationHash ?? expense.notificationHash;
+        final deduplicationKey = notifHash != null && notifHash.isNotEmpty
+            ? 'hash_$notifHash'
+            : 'item_${expense.merchant}_${expense.amount}_${expense.currency}_${expense.type.name}';
+
+        if (_recentCapturedKeys.containsKey(deduplicationKey)) {
+          final lastSeen = _recentCapturedKeys[deduplicationKey]!;
+          if (now.difference(lastSeen) < const Duration(minutes: 3)) {
+            return;
+          }
+        }
+        _recentCapturedKeys[deduplicationKey] = now;
+
         final isIncome = expense.type == TransactionType.income;
         final defaultCatId = isIncome ? 'other_income' : 'other';
         final catId = expense.suggestedCategoryId ?? defaultCatId;
@@ -160,7 +181,8 @@ class CaptureCubit extends Cubit<CaptureState> {
           amount: expense.amount,
           currency: expense.currency,
           merchant: expense.merchant,
-          occurredAt: expense.occurredAt,
+          // La hora del movimiento es la hora exacta en la que se procesa
+          occurredAt: now,
           category: category,
           source: TransactionSource.bankNotification,
           scope: expense.scope,
@@ -170,8 +192,7 @@ class CaptureCubit extends Cubit<CaptureState> {
           reviewed: expense.confidence >= 0.7,
           parser: expense.bankId ?? 'generic',
           parserVersion: expense.parserVersion,
-          notificationHash:
-              notification.notificationHash ?? expense.notificationHash,
+          notificationHash: notifHash,
           rawNotificationId: notification.id?.toString() ??
               expense.rawNotificationId?.toString(),
         );

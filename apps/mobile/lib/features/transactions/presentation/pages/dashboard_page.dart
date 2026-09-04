@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/flujo_logo.dart';
 import '../../../capture/presentation/cubit/capture_cubit.dart';
 import '../../../insights/presentation/cubit/insights_cubit.dart';
 import '../../../insights/presentation/widgets/insights_card.dart';
@@ -50,22 +51,28 @@ class _DashboardView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Flujo',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.primary,
-                letterSpacing: -0.5,
-              ),
-            ),
-            Text(
-              'Gastos & Yape',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+            const FlujoLogo(size: 30, showGlow: true),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Flujo',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'Gastos & Yape',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

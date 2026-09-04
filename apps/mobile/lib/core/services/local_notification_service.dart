@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../features/transactions/domain/entities/transaction.dart';
@@ -94,6 +95,24 @@ class LocalNotificationService {
           '${transaction.category.name} ${transaction.category.emoji}';
       final body = '${transaction.merchant} · $categoryInfo';
 
+      final origin = transaction.parser != null && transaction.parser != 'generic'
+          ? transaction.parser!.toUpperCase()
+          : (transaction.source == TransactionSource.bankNotification
+              ? 'NOTIFICACIÓN'
+              : 'COMPROBANTE');
+      final scopeName = transaction.scope == TransactionScope.business
+          ? '💼 Negocio'
+          : '👤 Personal';
+
+      final bigText = StringBuffer()
+        ..writeln('🏪 ${transaction.merchant}')
+        ..writeln('🏷️ $categoryInfo')
+        ..write('📱 Vía $origin · $scopeName');
+
+      final notificationColor = isIncome
+          ? const Color(0xFF059669)
+          : const Color(0xFF0D9488);
+
       final notificationDetails = NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
@@ -102,16 +121,25 @@ class LocalNotificationService {
           importance: Importance.high,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
+          largeIcon:
+              const DrawableResourceAndroidBitmap('ic_notification_large'),
+          color: notificationColor,
+          subText: 'Flujo · Finanzas',
+          when: DateTime.now().millisecondsSinceEpoch,
+          vibrationPattern: Int64List.fromList([0, 150, 80, 150]),
+          ticker: title,
+          category: AndroidNotificationCategory.status,
           styleInformation: BigTextStyleInformation(
-            body,
+            bigText.toString(),
             contentTitle: title,
-            summaryText: isIncome ? 'Ingreso detectado' : 'Gasto detectado',
+            summaryText: isIncome ? '✨ ¡Ingreso confirmado!' : '⚡ Gasto capturado al instante',
           ),
         ),
-        iOS: const DarwinNotificationDetails(
+        iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
+          subtitle: isIncome ? '✨ Ingreso confirmado' : '⚡ Gasto capturado',
         ),
       );
 

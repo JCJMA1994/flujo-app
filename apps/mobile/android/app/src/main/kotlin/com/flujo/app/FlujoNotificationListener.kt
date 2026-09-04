@@ -166,6 +166,8 @@ class FlujoNotificationListener : NotificationListenerService() {
                             "content" to text,
                             "timestamp" to postTime
                         )
+                        // Marcar como procesada inmediatamente para evitar doble entrega si se dispara onResume
+                        dbHelper.markAsProcessed(listOf(rawId))
                         mainActivity.sendNotificationToFlutter(notifMap)
                     } else {
                         // 6. Si Flutter está cerrado o en background, encolar procesamiento con WorkManager

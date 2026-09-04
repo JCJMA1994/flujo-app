@@ -94,6 +94,18 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   }
 
   final _subject = PublishSubject<RawNotification>();
+  final _processedIds = <int>{};
+  final _processedHashes = <String>{};
+  bool _isFlushing = false;
+
+  void _trimProcessedCache() {
+    if (_processedIds.length > 300) {
+      _processedIds.removeAll(_processedIds.take(150).toList());
+    }
+    if (_processedHashes.length > 300) {
+      _processedHashes.removeAll(_processedHashes.take(150).toList());
+    }
+  }
 
   @override
   bool get isSupported => Platform.isAndroid;
@@ -131,7 +143,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
 
   @override
   Future<void> flushPendingOfflineNotifications() async {
-    if (!isSupported) return;
+    if (!isSupported || _isFlushing) return;
+    _isFlushing = true;
     try {
       final pending = await _channel.invokeMethod<List<dynamic>>(
         'getPendingRawNotifications',
@@ -145,10 +158,21 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
             final map = Map<String, dynamic>.from(item);
             final raw = _createRawFromMap(map);
             if (raw != null) {
-              _subject.add(raw);
               if (raw.id != null) {
                 processedIds.add(raw.id!);
+                if (_processedIds.contains(raw.id)) {
+                  continue;
+                }
+                _processedIds.add(raw.id!);
               }
+              if (raw.notificationHash != null) {
+                if (_processedHashes.contains(raw.notificationHash)) {
+                  continue;
+                }
+                _processedHashes.add(raw.notificationHash!);
+              }
+              _trimProcessedCache();
+              _subject.add(raw);
             }
           }
         }
@@ -156,7 +180,10 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
           await markNotificationsProcessed(processedIds);
         }
       }
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      _isFlushing = false;
+    }
   }
 
   RawNotification? _createRawFromMap(Map<String, dynamic> data) {
@@ -184,10 +211,23 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   void _processRawMap(Map<String, dynamic> data) {
     final raw = _createRawFromMap(data);
     if (raw != null) {
-      _subject.add(raw);
+      if (raw.id != null && _processedIds.contains(raw.id)) {
+        return;
+      }
+      if (raw.notificationHash != null &&
+          _processedHashes.contains(raw.notificationHash)) {
+        return;
+      }
+
       if (raw.id != null) {
+        _processedIds.add(raw.id!);
         markNotificationsProcessed([raw.id!]);
       }
+      if (raw.notificationHash != null) {
+        _processedHashes.add(raw.notificationHash!);
+      }
+      _trimProcessedCache();
+      _subject.add(raw);
     }
   }
 

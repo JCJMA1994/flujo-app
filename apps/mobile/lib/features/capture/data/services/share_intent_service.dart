@@ -57,6 +57,7 @@ class ShareIntentService {
   String? _lastProcessedSignature;
   DateTime? _lastProcessedTime;
   bool _isProcessing = false;
+  final _recentSharedKeys = <String, DateTime>{};
 
   Future<void> _handleData(Map<dynamic, dynamic> data) async {
     final type = data['type'] as String?;
@@ -223,6 +224,24 @@ class ShareIntentService {
   }
 
   Future<void> _saveParsedExpense(ParsedExpense expense) async {
+    final now = DateTime.now();
+    _recentSharedKeys.removeWhere(
+      (_, time) => now.difference(time) > const Duration(minutes: 10),
+    );
+
+    final deduplicationKey =
+        'item_${expense.merchant}_${expense.amount}_${expense.currency}_${expense.type.name}';
+    if (_recentSharedKeys.containsKey(deduplicationKey)) {
+      final lastSeen = _recentSharedKeys[deduplicationKey]!;
+      if (now.difference(lastSeen) < const Duration(minutes: 3)) {
+        debugPrint(
+          '[ShareIntentService] Comprobante duplicado en ventana corta, omitiendo guardado.',
+        );
+        return;
+      }
+    }
+    _recentSharedKeys[deduplicationKey] = now;
+
     final isIncome = expense.type == TransactionType.income;
     final defaultCatId = isIncome ? 'other_income' : 'other';
     final catId = expense.suggestedCategoryId ?? defaultCatId;
@@ -240,7 +259,8 @@ class ShareIntentService {
       amount: expense.amount,
       currency: expense.currency,
       merchant: expense.merchant,
-      occurredAt: expense.occurredAt,
+      // La hora del comprobante es la hora exacta en la que se procesa
+      occurredAt: now,
       category: category,
       source: TransactionSource.manual,
       scope: expense.scope,

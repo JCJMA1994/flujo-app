@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/flujo_logo.dart';
 
 // ──────────────────────────────────────────────────────────────────────────
 //  Colores fijos del onboarding (siempre oscuro, premium)
@@ -97,28 +98,17 @@ class _InitialOnboardingPageState extends State<InitialOnboardingPage> {
       backgroundColor: _kBg,
       body: SafeArea(
         bottom: false,
-        child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
           children: [
             // ── Header ──────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Row(
                 children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0F766E), Color(0xFF2DD4BF)],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.account_balance_wallet_rounded,
-                      size: 18,
-                      color: Colors.white,
-                    ),
-                  ),
+                  const FlujoLogo(size: 32, showGlow: true),
                   const SizedBox(width: 10),
                   const Text(
                     'Flujo',
@@ -228,7 +218,9 @@ class _InitialOnboardingPageState extends State<InitialOnboardingPage> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
@@ -247,26 +239,29 @@ class _SlideView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Ícono héroe con glow
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: data.gradient,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(36),
-              boxShadow: [
-                BoxShadow(
-                  color: data.gradient.first.withValues(alpha: 0.4),
-                  blurRadius: 36,
-                  offset: const Offset(0, 14),
+          if (data.icon == Icons.pie_chart_rounded)
+            const FlujoLogo(size: 120, showGlow: true)
+          else
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: data.gradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(36),
+                boxShadow: [
+                  BoxShadow(
+                    color: data.gradient.first.withValues(alpha: 0.4),
+                    blurRadius: 36,
+                    offset: const Offset(0, 14),
+                  ),
+                ],
+              ),
+              child: Icon(data.icon, size: 56, color: Colors.white),
             ),
-            child: Icon(data.icon, size: 56, color: Colors.white),
-          ),
           const SizedBox(height: 40),
 
           // Título
