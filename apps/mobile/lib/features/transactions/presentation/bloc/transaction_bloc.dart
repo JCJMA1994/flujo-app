@@ -43,6 +43,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     );
     on<MonthChanged>(_onMonthChanged, transformer: restartable());
     on<ScopeFilterChanged>(_onScopeChanged, transformer: restartable());
+    on<TypeFilterChanged>(_onTypeChanged, transformer: restartable());
+    on<ParserFilterChanged>(_onParserChanged, transformer: restartable());
     on<CategoryFilterToggled>(_onCategoryToggled, transformer: restartable());
     on<TransactionDeleted>(_onDeleted, transformer: sequential());
   }
@@ -127,6 +129,32 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       state.filter.copyWith(
         scope: event.scope,
         clearScope: event.scope == null,
+      ),
+    );
+  }
+
+  void _onTypeChanged(
+    TypeFilterChanged event,
+    Emitter<TransactionState> emit,
+  ) {
+    _updateFilter(
+      emit,
+      state.filter.copyWith(
+        type: event.type,
+        clearType: event.type == null,
+      ),
+    );
+  }
+
+  void _onParserChanged(
+    ParserFilterChanged event,
+    Emitter<TransactionState> emit,
+  ) {
+    _updateFilter(
+      emit,
+      state.filter.copyWith(
+        parser: event.parser,
+        clearParser: event.parser == null,
       ),
     );
   }

@@ -9,6 +9,7 @@ class TransactionFilter extends Equatable {
     this.categoryIds = const {},
     this.scope,
     this.type,
+    this.parser,
     this.query = '',
     this.onlyNeedsReview = false,
   });
@@ -17,6 +18,7 @@ class TransactionFilter extends Equatable {
   final Set<String> categoryIds;
   final TransactionScope? scope;
   final TransactionType? type;
+  final String? parser;
   final String query;
   final bool onlyNeedsReview;
 
@@ -25,8 +27,10 @@ class TransactionFilter extends Equatable {
     Set<String>? categoryIds,
     TransactionScope? scope,
     TransactionType? type,
+    String? parser,
     bool clearScope = false,
     bool clearType = false,
+    bool clearParser = false,
     String? query,
     bool? onlyNeedsReview,
   }) {
@@ -35,6 +39,7 @@ class TransactionFilter extends Equatable {
       categoryIds: categoryIds ?? this.categoryIds,
       scope: clearScope ? null : (scope ?? this.scope),
       type: clearType ? null : (type ?? this.type),
+      parser: clearParser ? null : (parser ?? this.parser),
       query: query ?? this.query,
       onlyNeedsReview: onlyNeedsReview ?? this.onlyNeedsReview,
     );
@@ -42,7 +47,7 @@ class TransactionFilter extends Equatable {
 
   @override
   List<Object?> get props =>
-      [month, categoryIds, scope, type, query, onlyNeedsReview];
+      [month, categoryIds, scope, type, parser, query, onlyNeedsReview];
 }
 
 /// El dominio define el contrato; `data` lo implementa. La inversión de

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -9,17 +10,24 @@ import '../../../capture/presentation/cubit/capture_cubit.dart';
 import '../../data/services/transaction_export_service.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
+import '../cubit/privacy_cubit.dart';
 import '../widgets/review_transaction_sheet.dart';
 import '../widgets/transaction_form_sheet.dart';
+import '../widgets/transactions_shimmer.dart';
 
 class TransactionsPage extends StatelessWidget {
   const TransactionsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<TransactionBloc>()
-        ..add(const TransactionsSubscriptionRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<TransactionBloc>()
+            ..add(const TransactionsSubscriptionRequested()),
+        ),
+        BlocProvider.value(value: getIt<PrivacyCubit>()),
+      ],
       child: const _TransactionsView(),
     );
   }
@@ -34,6 +42,20 @@ class _TransactionsView extends StatelessWidget {
       appBar: AppBar(
         title: const _SearchField(),
         actions: [
+          BlocBuilder<PrivacyCubit, PrivacyState>(
+            builder: (context, privacy) {
+              return IconButton(
+                icon: Icon(
+                  privacy.isObscured
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                ),
+                tooltip:
+                    privacy.isObscured ? 'Mostrar saldos' : 'Ocultar saldos',
+                onPressed: () => context.read<PrivacyCubit>().toggle(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.file_download_outlined),
             tooltip: 'Exportar a CSV',
@@ -47,7 +69,7 @@ class _TransactionsView extends StatelessWidget {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(56),
-          child: _ScopeFilter(),
+          child: _FilterBar(),
         ),
       ),
       body: BlocConsumer<TransactionBloc, TransactionState>(
@@ -70,7 +92,7 @@ class _TransactionsView extends StatelessWidget {
             p.isSyncing != c.isSyncing,
         builder: (context, state) {
           if (state.status == TransactionStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const TransactionsShimmer();
           }
           return RefreshIndicator(
             onRefresh: () async {
@@ -94,6 +116,8 @@ class _TransactionsView extends StatelessWidget {
   }
 
   Widget _buildTransactionsList(BuildContext context, TransactionState state) {
+    final isObscured =
+        context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final expenses = state.transactions.where((t) => t.isExpense).toList();
     final totalExpense = expenses.fold<double>(0, (sum, t) => sum + t.amount);
     final avgExpense = expenses.isEmpty ? 0.0 : totalExpense / expenses.length;
@@ -135,7 +159,9 @@ class _TransactionsView extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Promedio: S/ ${avgExpense.toStringAsFixed(2)}',
+                    isObscured
+                        ? 'Promedio: S/ ••••'
+                        : 'Promedio: S/ ${avgExpense.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: Theme.of(context).colorScheme.secondary,
@@ -244,32 +270,90 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _ScopeFilter extends StatelessWidget {
-  const _ScopeFilter();
+class _FilterBar extends StatelessWidget {
+  const _FilterBar();
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TransactionBloc, TransactionState>(
-      buildWhen: (p, c) => p.filter.scope != c.filter.scope,
+      buildWhen: (p, c) =>
+          p.filter.scope != c.filter.scope ||
+          p.filter.type != c.filter.type ||
+          p.filter.parser != c.filter.parser,
       builder: (context, state) {
+        final bloc = context.read<TransactionBloc>();
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
+              // Tipo chips
+              for (final entry in <(String, TransactionType?)>[
+                ('Todos', null),
+                ('Gastos', TransactionType.expense),
+                ('Ingresos', TransactionType.income),
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: FilterChip(
+                    label: Text(entry.$1),
+                    selected: state.filter.type == entry.$2,
+                    onSelected: (_) {
+                      HapticFeedback.selectionClick();
+                      bloc.add(TypeFilterChanged(entry.$2));
+                    },
+                  ),
+                ),
+              const SizedBox(width: 4),
+              Container(
+                height: 24,
+                width: 1,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+              const SizedBox(width: 8),
+              // Ámbito chips
               for (final entry in <(String, TransactionScope?)>[
-                ('Todo', null),
                 ('Personal', TransactionScope.personal),
                 ('Negocio', TransactionScope.business),
               ])
                 Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: FilterChip(
                     label: Text(entry.$1),
                     selected: state.filter.scope == entry.$2,
-                    onSelected: (_) => context
-                        .read<TransactionBloc>()
-                        .add(ScopeFilterChanged(entry.$2)),
+                    onSelected: (selected) {
+                      HapticFeedback.selectionClick();
+                      bloc.add(ScopeFilterChanged(selected ? entry.$2 : null));
+                    },
+                  ),
+                ),
+              const SizedBox(width: 4),
+              Container(
+                height: 24,
+                width: 1,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+              const SizedBox(width: 8),
+              // Entidad / Parser chips
+              for (final entry in <(String, String?)>[
+                ('Yape', 'yape'),
+                ('Plin', 'plin'),
+                ('BCP', 'bcp'),
+                ('BBVA', 'bbva'),
+                ('Interbank', 'interbank'),
+                ('Scotiabank', 'scotiabank'),
+                ('PayPal', 'paypal'),
+                ('Manual', 'manual'),
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: FilterChip(
+                    label: Text(entry.$1),
+                    selected: state.filter.parser == entry.$2,
+                    onSelected: (selected) {
+                      HapticFeedback.selectionClick();
+                      bloc.add(ParserFilterChanged(selected ? entry.$2 : null));
+                    },
                   ),
                 ),
             ],
@@ -289,6 +373,8 @@ class _TransactionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isIncome = transaction.isIncome;
+    final isObscured =
+        context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final money = NumberFormat.currency(
       locale: 'es_PE',
       symbol: transaction.currency == 'PEN' ? 'S/ ' : r'$ ',
@@ -333,15 +419,36 @@ class _TransactionCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
-                    Row(
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           DateFormat('d MMM, HH:mm', 'es')
                               .format(transaction.occurredAt),
                           style: theme.textTheme.bodySmall,
                         ),
-                        if (transaction.scope == TransactionScope.business) ...[
-                          const SizedBox(width: 6),
+                        if (transaction.parser != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              transaction.parser!.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        if (transaction.scope == TransactionScope.business)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -360,7 +467,6 @@ class _TransactionCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                        ],
                       ],
                     ),
                   ],
@@ -370,7 +476,9 @@ class _TransactionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${isIncome ? '+' : '-'}${money.format(transaction.amount)}',
+                    isObscured
+                        ? '${isIncome ? '+' : '-'}••••'
+                        : '${isIncome ? '+' : '-'}${money.format(transaction.amount)}',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,

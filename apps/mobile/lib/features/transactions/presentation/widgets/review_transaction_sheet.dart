@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/di/injection.dart';
@@ -8,6 +8,7 @@ import '../../../capture/domain/entities/parsed_expense.dart';
 import '../../../capture/presentation/cubit/capture_cubit.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/usecases/usecases.dart';
+import '../cubit/privacy_cubit.dart';
 
 class ReviewTransactionSheet extends StatefulWidget {
   const ReviewTransactionSheet({
@@ -153,8 +154,17 @@ class _ReviewTransactionSheetState extends State<ReviewTransactionSheet> {
       },
       onSuccess: (_) {
         Navigator.of(context).pop();
+        final deletedTx = widget.transaction;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registro eliminado')),
+          SnackBar(
+            content: const Text('Registro eliminado'),
+            action: SnackBarAction(
+              label: 'Deshacer',
+              onPressed: () {
+                getIt<AddTransaction>()(deletedTx);
+              },
+            ),
+          ),
         );
       },
     );
@@ -165,6 +175,8 @@ class _ReviewTransactionSheetState extends State<ReviewTransactionSheet> {
     final theme = Theme.of(context);
     final tx = widget.transaction;
     final isIncome = tx.isIncome;
+    final isObscured =
+        context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final money = NumberFormat.currency(
       locale: 'es_PE',
       symbol: tx.currency == 'PEN' ? 'S/ ' : r'$ ',
@@ -241,7 +253,9 @@ class _ReviewTransactionSheetState extends State<ReviewTransactionSheet> {
                   ),
                 ),
                 Text(
-                  '${isIncome ? '+' : '-'}${money.format(tx.amount)}',
+                  isObscured
+                      ? '${isIncome ? '+' : '-'}••••'
+                      : '${isIncome ? '+' : '-'}${money.format(tx.amount)}',
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: isIncome ? Colors.green : null,

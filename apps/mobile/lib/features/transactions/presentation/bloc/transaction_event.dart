@@ -80,3 +80,21 @@ final class TransactionDeleted extends TransactionEvent {
   @override
   List<Object?> get props => [id];
 }
+
+final class TypeFilterChanged extends TransactionEvent {
+  const TypeFilterChanged(this.type);
+
+  final TransactionType? type;
+
+  @override
+  List<Object?> get props => [type];
+}
+
+final class ParserFilterChanged extends TransactionEvent {
+  const ParserFilterChanged(this.parser);
+
+  final String? parser;
+
+  @override
+  List<Object?> get props => [parser];
+}

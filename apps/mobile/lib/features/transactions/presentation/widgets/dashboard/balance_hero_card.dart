@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/transaction.dart';
+import '../../cubit/privacy_cubit.dart';
 
 class BalanceHeroCard extends StatelessWidget {
   const BalanceHeroCard({required this.summary, super.key});
@@ -9,6 +11,7 @@ class BalanceHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isObscured = context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final isNetPositive = summary.netBalance >= 0;
 
     return Container(
@@ -62,7 +65,9 @@ class BalanceHeroCard extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
-              '${isNetPositive ? '+' : '-'}S/ ${summary.netBalance.abs().toStringAsFixed(2)}',
+              isObscured
+                  ? 'S/ ••••••'
+                  : '${isNetPositive ? '+' : '-'}S/ ${summary.netBalance.abs().toStringAsFixed(2)}',
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w800,
@@ -112,7 +117,9 @@ class BalanceHeroCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'S/ ${summary.incomeTotal.toStringAsFixed(2)}',
+                                isObscured
+                                    ? 'S/ ••••'
+                                    : 'S/ ${summary.incomeTotal.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
@@ -164,7 +171,9 @@ class BalanceHeroCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'S/ ${summary.total.toStringAsFixed(2)}',
+                                isObscured
+                                    ? 'S/ ••••'
+                                    : 'S/ ${summary.total.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
@@ -216,7 +225,9 @@ class BalanceHeroCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'S/ ${summary.dailyAverage.toStringAsFixed(1)}',
+                                isObscured
+                                    ? 'S/ ••••'
+                                    : 'S/ ${summary.dailyAverage.toStringAsFixed(1)}',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,

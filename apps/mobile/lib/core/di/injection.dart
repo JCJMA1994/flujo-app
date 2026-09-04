@@ -31,6 +31,7 @@ import '../../features/transactions/domain/repositories/transaction_repository.d
 import '../../features/transactions/domain/usecases/usecases.dart';
 import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
 import '../../features/transactions/presentation/cubit/dashboard_cubit.dart';
+import '../../features/transactions/presentation/cubit/privacy_cubit.dart';
 import '../database/app_database.dart';
 import '../network/dio_client.dart';
 import '../security/biometric_service.dart';
@@ -173,6 +174,7 @@ Future<void> configureDependencies() async {
       ),
     )
     ..registerFactory(() => ChatCubit(askFinancialAssistant: getIt()))
+    ..registerLazySingleton(PrivacyCubit.new)
     // CaptureCubit es Singleton porque gestiona la suscripción persistente
     // en segundo plano para interceptar notificaciones de bancos y Yape.
     ..registerLazySingleton(

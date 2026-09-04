@@ -43,6 +43,10 @@ class DriftTransactionLocalDataSource implements TransactionLocalDataSource {
       query.where(_db.transactionsTable.type.equals(type.name));
     }
 
+    if (filter.parser case final parser?) {
+      query.where(_db.transactionsTable.parser.equals(parser));
+    }
+
     if (filter.onlyNeedsReview) {
       query.where(
         _db.transactionsTable.reviewed.equals(false) |

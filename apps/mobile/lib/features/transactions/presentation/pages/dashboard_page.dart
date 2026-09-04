@@ -10,9 +10,11 @@ import '../../../insights/presentation/widgets/insights_card.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 import '../cubit/dashboard_cubit.dart';
+import '../cubit/privacy_cubit.dart';
 import '../widgets/dashboard/balance_hero_card.dart';
 import '../widgets/dashboard/category_breakdown_list.dart';
 import '../widgets/dashboard/daily_budget_card.dart';
+import '../widgets/dashboard/dashboard_shimmer.dart';
 import '../widgets/dashboard/month_selector_header.dart';
 import '../widgets/dashboard/quick_actions_card.dart';
 import '../widgets/dashboard/variation_banner.dart';
@@ -32,6 +34,7 @@ class DashboardPage extends StatelessWidget {
             ..add(const TransactionsSubscriptionRequested()),
         ),
         BlocProvider(create: (_) => getIt<InsightsCubit>()..start()),
+        BlocProvider.value(value: getIt<PrivacyCubit>()),
       ],
       child: const _DashboardView(),
     );
@@ -67,6 +70,20 @@ class _DashboardView extends StatelessWidget {
           ],
         ),
         actions: [
+          BlocBuilder<PrivacyCubit, PrivacyState>(
+            builder: (context, privacy) {
+              return IconButton(
+                icon: Icon(
+                  privacy.isObscured
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                ),
+                tooltip:
+                    privacy.isObscured ? 'Mostrar saldos' : 'Ocultar saldos',
+                onPressed: () => context.read<PrivacyCubit>().toggle(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.receipt_long_outlined),
             tooltip: 'Ver movimientos',
@@ -128,7 +145,7 @@ class _DashboardView extends StatelessWidget {
           return switch (state.status) {
             DashboardStatus.initial ||
             DashboardStatus.loading =>
-              const Center(child: CircularProgressIndicator()),
+              const DashboardShimmer(),
             DashboardStatus.failure => _RetryView(
                 onRetry: () => context.read<DashboardCubit>().start(),
               ),

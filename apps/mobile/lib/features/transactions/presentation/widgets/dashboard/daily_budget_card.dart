@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/transaction.dart';
+import '../../cubit/privacy_cubit.dart';
 
 class DailyBudgetCard extends StatelessWidget {
   const DailyBudgetCard({required this.summary, super.key});
@@ -9,6 +11,7 @@ class DailyBudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isObscured = context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -104,7 +107,7 @@ class DailyBudgetCard extends StatelessWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'S/ ${dailyBudget.toStringAsFixed(2)}',
+                  isObscured ? 'S/ ••••' : 'S/ ${dailyBudget.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -128,9 +131,13 @@ class DailyBudgetCard extends StatelessWidget {
           Text(
             !hasIncome
                 ? 'Registra tus ingresos de este mes para calcular tu ritmo de gasto diario disponible.'
-                : (isPositive
-                    ? 'Te quedan S/ ${summary.netBalance.toStringAsFixed(2)} de saldo a favor. Este ritmo te permite cerrar el mes con ahorro.'
-                    : 'Has gastado S/ ${summary.netBalance.abs().toStringAsFixed(2)} más de tus ingresos. Modera gastos no esenciales.'),
+                : (isObscured
+                    ? (isPositive
+                        ? 'Mantienes saldo a favor este mes. Ritmo saludable de ahorro.'
+                        : 'Has superado el límite sugerido. Modera gastos no esenciales.')
+                    : (isPositive
+                        ? 'Te quedan S/ ${summary.netBalance.toStringAsFixed(2)} de saldo a favor. Este ritmo te permite cerrar el mes con ahorro.'
+                        : 'Has gastado S/ ${summary.netBalance.abs().toStringAsFixed(2)} más de tus ingresos. Modera gastos no esenciales.')),
             style: TextStyle(
               fontSize: 12,
               height: 1.35,
@@ -167,7 +174,9 @@ class DailyBudgetCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Gasto: S/ ${summary.total.toStringAsFixed(0)} / S/ ${summary.incomeTotal.toStringAsFixed(0)}',
+                  isObscured
+                      ? 'Gasto: S/ •••• / S/ ••••'
+                      : 'Gasto: S/ ${summary.total.toStringAsFixed(0)} / S/ ${summary.incomeTotal.toStringAsFixed(0)}',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
