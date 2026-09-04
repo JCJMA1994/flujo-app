@@ -15,24 +15,35 @@ class BalanceHeroCard extends StatelessWidget {
     final isNetPositive = summary.netBalance >= 0;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isNetPositive
-              ? [const Color(0xFF0F766E), const Color(0xFF0D9488)]
-              : [const Color(0xFF991B1B), const Color(0xFFDC2626)],
+              ? [
+                  const Color(0xFF042F2E),
+                  const Color(0xFF0F766E),
+                  const Color(0xFF0D9488),
+                ]
+              : [
+                  const Color(0xFF7F1D1D),
+                  const Color(0xFF991B1B),
+                  const Color(0xFFDC2626),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.16),
+        ),
         boxShadow: [
           BoxShadow(
             color: (isNetPositive
                     ? const Color(0xFF0D9488)
                     : const Color(0xFFDC2626))
-                .withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+                .withValues(alpha: 0.35),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),

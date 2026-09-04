@@ -41,12 +41,14 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           side: BorderSide(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            color: isDark
+                ? const Color(0xFF334155)
+                : const Color(0xFFE2E8F0).withValues(alpha: 0.8),
           ),
         ),
-        color: scheme.surfaceContainerHighest,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,

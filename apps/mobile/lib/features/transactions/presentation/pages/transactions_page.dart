@@ -106,12 +106,6 @@ class _TransactionsView extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => TransactionFormSheet.show(context),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Nuevo'),
-        tooltip: 'Registrar movimiento manual',
-      ),
     );
   }
 

@@ -19,7 +19,6 @@ import '../widgets/dashboard/dashboard_shimmer.dart';
 import '../widgets/dashboard/month_selector_header.dart';
 import '../widgets/dashboard/quick_actions_card.dart';
 import '../widgets/dashboard/variation_banner.dart';
-import '../widgets/transaction_form_sheet.dart';
 import '../widgets/user_profile_sheet.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -159,12 +158,6 @@ class _DashboardView extends StatelessWidget {
             DashboardStatus.success => _SummaryView(summary: state.summary!),
           };
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => TransactionFormSheet.show(context),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Registrar'),
-        tooltip: 'Registrar movimiento manual',
       ),
     );
   }
