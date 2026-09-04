@@ -110,4 +110,15 @@ class AuthControllerTest {
             .andExpect(jsonPath("$.id").value("user-abc"))
             .andExpect(jsonPath("$.email").value("test@flujo.com"));
     }
+
+    @Test
+    void shouldLogoutAndRevokeTokenSuccessfully() throws Exception {
+        when(jwtTokenService.validateToken(eq("jwt-token-xyz")))
+            .thenReturn(Optional.of(new JwtTokenService.JwtClaims("user-abc", "test@flujo.com", "Usuario Demo")));
+
+        mockMvc.perform(post("/v1/auth/logout")
+                .header("Authorization", "Bearer jwt-token-xyz"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").exists());
+    }
 }

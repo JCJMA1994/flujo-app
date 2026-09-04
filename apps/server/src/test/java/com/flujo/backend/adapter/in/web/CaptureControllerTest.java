@@ -43,6 +43,9 @@ class CaptureControllerTest {
             "expense"
         );
 
+        when(jwtTokenService.validateToken(eq("valid-mock-token")))
+            .thenReturn(java.util.Optional.of(new JwtTokenService.JwtClaims("user-1", "user@test.com", "Test User")));
+
         when(interpretationService.interpret(eq("Yapeaste S/ 25.50 a La Lucha"), eq("com.bcp.innovacxion.yapeapp")))
             .thenReturn(mockResult);
 
@@ -54,6 +57,7 @@ class CaptureControllerTest {
             """;
 
         mockMvc.perform(post("/v1/capture/interpret")
+                .header("Authorization", "Bearer valid-mock-token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
             .andExpect(status().isOk())
@@ -64,5 +68,13 @@ class CaptureControllerTest {
             .andExpect(jsonPath("$.bank_id").value("yape"))
             .andExpect(jsonPath("$.confidence").value(0.98))
             .andExpect(jsonPath("$.type").value("expense"));
+    }
+
+    @Test
+    void shouldRejectUnauthenticatedCaptureRequest() throws Exception {
+        mockMvc.perform(post("/v1/capture/interpret")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"raw_text\": \"Yapeaste S/ 10\"}"))
+            .andExpect(status().isUnauthorized());
     }
 }

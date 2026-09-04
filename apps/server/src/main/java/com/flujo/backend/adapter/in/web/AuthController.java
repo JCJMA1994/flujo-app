@@ -126,4 +126,14 @@ public class AuthController {
             .map(user -> ResponseEntity.ok(new UserDto(user.getId(), user.getEmail(), user.getName(), user.getCreatedAt().toString())))
             .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7).trim();
+            jwtTokenService.revokeToken(token);
+        }
+        return ResponseEntity.ok(Map.of("message", "Sesión cerrada y token revocado"));
+    }
 }

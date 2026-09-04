@@ -26,6 +26,8 @@ abstract class AuthRemoteDataSource {
   });
 
   Future<UserModel> getCurrentUser();
+
+  Future<void> logout();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -111,6 +113,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw const AuthFailure('Sesión expirada o no autorizada');
       }
       throw ServerFailure(e.message ?? 'Error consultando usuario actual');
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await _dio.post<void>('/v1/auth/logout');
+    } catch (_) {
+      // Si falla la red, permitimos que el logout local proceda limpiamente
     }
   }
 }

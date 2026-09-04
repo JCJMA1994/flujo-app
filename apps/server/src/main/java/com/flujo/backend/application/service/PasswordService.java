@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -35,7 +37,12 @@ public class PasswordService {
     }
 
     public boolean verifyPassword(String password, String salt, String expectedHash) {
+        if (password == null || salt == null || expectedHash == null) {
+            return false;
+        }
         String computedHash = hashPassword(password, salt);
-        return computedHash.equals(expectedHash);
+        byte[] computedBytes = computedHash.getBytes(StandardCharsets.UTF_8);
+        byte[] expectedBytes = expectedHash.getBytes(StandardCharsets.UTF_8);
+        return MessageDigest.isEqual(computedBytes, expectedBytes);
     }
 }

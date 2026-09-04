@@ -57,8 +57,42 @@ public class JwtTokenService {
         }
     }
 
-    public Optional<JwtClaims> validateToken(String token) {
+    private final Map<String, Long> revokedTokens = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public void revokeToken(String token) {
         if (token == null || token.isBlank()) {
+            return;
+        }
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length == 3) {
+                byte[] payloadBytes = Base64.getUrlDecoder().decode(parts[1]);
+                JsonNode payload = objectMapper.readTree(payloadBytes);
+                long exp = payload.path("exp").asLong(Instant.now().getEpochSecond() + expirationSeconds);
+                revokedTokens.put(token, exp);
+            }
+        } catch (Exception e) {
+            revokedTokens.put(token, Instant.now().getEpochSecond() + expirationSeconds);
+        }
+    }
+
+    public boolean isTokenRevoked(String token) {
+        if (token == null) {
+            return true;
+        }
+        Long exp = revokedTokens.get(token);
+        if (exp == null) {
+            return false;
+        }
+        if (exp < Instant.now().getEpochSecond()) {
+            revokedTokens.remove(token);
+            return false;
+        }
+        return true;
+    }
+
+    public Optional<JwtClaims> validateToken(String token) {
+        if (token == null || token.isBlank() || isTokenRevoked(token)) {
             return Optional.empty();
         }
 
@@ -70,7 +104,9 @@ public class JwtTokenService {
         String dataToSign = parts[0] + "." + parts[1];
         String expectedSignature = sign(dataToSign, secretKey);
 
-        if (!expectedSignature.equals(parts[2])) {
+        byte[] expectedBytes = expectedSignature.getBytes(StandardCharsets.UTF_8);
+        byte[] actualBytes = parts[2].getBytes(StandardCharsets.UTF_8);
+        if (!java.security.MessageDigest.isEqual(expectedBytes, actualBytes)) {
             return Optional.empty();
         }
 

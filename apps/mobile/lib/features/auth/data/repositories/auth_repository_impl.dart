@@ -64,6 +64,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> logout() async {
     try {
+      try {
+        await _remoteDataSource.logout();
+      } catch (_) {
+        // Fallback offline: permitimos que el logout local proceda
+      }
       await _localDataSource.clearSession();
       return const Success(null);
     } catch (e) {
