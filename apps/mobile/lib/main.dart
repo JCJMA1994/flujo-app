@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
+import 'core/services/local_notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/auth/presentation/cubit/auth_state.dart';
@@ -18,6 +19,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es');
   await configureDependencies();
+
+  // Inicializa el servicio de notificaciones locales para avisos de gastos/ingresos
+  final notificationService = getIt<LocalNotificationService>();
+  await notificationService.init();
+  unawaited(notificationService.requestPermission());
 
   // Inicia la escucha para recibir comprobantes compartidos desde Yape o bancos
   getIt<ShareIntentService>().init();

@@ -34,6 +34,7 @@ import '../../features/transactions/presentation/cubit/dashboard_cubit.dart';
 import '../database/app_database.dart';
 import '../network/dio_client.dart';
 import '../security/biometric_service.dart';
+import '../services/local_notification_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -51,6 +52,7 @@ Future<void> configureDependencies() async {
       () => BiometricService(storage: getIt()),
     )
     ..registerLazySingleton(TransactionExportService.new)
+    ..registerLazySingleton(LocalNotificationService.new)
     ..registerLazySingleton(
       () => DioClient(
         baseUrl: _apiBaseUrl,
@@ -177,12 +179,14 @@ Future<void> configureDependencies() async {
         listener: getIt(),
         pipeline: getIt(),
         addTransaction: getIt(),
+        notificationService: getIt(),
       ),
     )
     ..registerLazySingleton(
       () => ShareIntentService(
         aiCategorizer: getIt(),
         addTransaction: getIt(),
+        notificationService: getIt(),
       ),
     );
 }

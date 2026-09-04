@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flujo/core/services/local_notification_service.dart';
 import 'package:flujo/core/utils/result.dart';
 import 'package:flujo/features/capture/data/datasources/notification_listener_datasource.dart';
 import 'package:flujo/features/capture/data/parsers/expense_parsing_pipeline.dart';
@@ -17,6 +18,9 @@ class MockExpenseParsingPipeline extends Mock
     implements ExpenseParsingPipeline {}
 
 class MockAddTransaction extends Mock implements AddTransaction {}
+
+class MockLocalNotificationService extends Mock
+    implements LocalNotificationService {}
 
 class MockUuid extends Mock implements Uuid {}
 
@@ -149,6 +153,39 @@ void main() {
           lastCaptured: sampleTx,
         ),
       ],
+    );
+
+    late MockLocalNotificationService mockNotif;
+
+    blocTest<CaptureCubit, CaptureState>(
+      'dispara notificación local al procesar transacción exitosamente',
+      setUp: () {
+        mockNotif = MockLocalNotificationService();
+        when(() => mockNotif.showTransactionNotification(any()))
+            .thenAnswer((_) async {});
+        when(() => listener.isSupported).thenReturn(true);
+        when(() => listener.stream)
+            .thenAnswer((_) => Stream.value(sampleNotification));
+        when(
+          () => pipeline.process(
+            any(),
+            rules: any(named: 'rules'),
+          ),
+        ).thenAnswer((_) async => Success(sampleExpense));
+        when(() => addTransaction(any()))
+            .thenAnswer((_) async => Success(sampleTx));
+      },
+      build: () => CaptureCubit(
+        listener: listener,
+        pipeline: pipeline,
+        addTransaction: addTransaction,
+        notificationService: mockNotif,
+        uuid: uuid,
+      ),
+      act: (cubit) => cubit.startListening(),
+      verify: (_) {
+        verify(() => mockNotif.showTransactionNotification(sampleTx)).called(1);
+      },
     );
   });
 }

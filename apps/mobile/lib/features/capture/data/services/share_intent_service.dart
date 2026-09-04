@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/services/local_notification_service.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/usecases/usecases.dart';
 import '../../domain/entities/parsed_expense.dart';
@@ -15,13 +16,16 @@ class ShareIntentService {
   ShareIntentService({
     required AiCategorizerDataSource aiCategorizer,
     required AddTransaction addTransaction,
+    LocalNotificationService? notificationService,
     Uuid uuid = const Uuid(),
   })  : _ai = aiCategorizer,
         _addTransaction = addTransaction,
+        _notificationService = notificationService,
         _uuid = uuid;
 
   final AiCategorizerDataSource _ai;
   final AddTransaction _addTransaction;
+  final LocalNotificationService? _notificationService;
   final Uuid _uuid;
 
   /// Llave global para mostrar notificaciones / SnackBars en la pantalla
@@ -242,6 +246,12 @@ class ShareIntentService {
       rawText: expense.rawText,
     );
 
-    await _addTransaction(transaction);
+    final result = await _addTransaction(transaction);
+    result.fold(
+      onFailure: (_) {},
+      onSuccess: (tx) {
+        unawaited(_notificationService?.showTransactionNotification(tx));
+      },
+    );
   }
 }

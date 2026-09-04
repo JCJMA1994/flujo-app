@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/error/failures.dart';
+import '../../../../core/services/local_notification_service.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/usecases/usecases.dart';
 import '../../data/datasources/notification_listener_datasource.dart';
@@ -18,16 +19,19 @@ class CaptureCubit extends Cubit<CaptureState> {
     required NotificationListenerDataSource listener,
     required ExpenseParsingPipeline pipeline,
     required AddTransaction addTransaction,
+    LocalNotificationService? notificationService,
     Uuid? uuid,
   })  : _listener = listener,
         _pipeline = pipeline,
         _addTransaction = addTransaction,
+        _notificationService = notificationService,
         _uuid = uuid ?? const Uuid(),
         super(const CaptureState());
 
   final NotificationListenerDataSource _listener;
   final ExpenseParsingPipeline _pipeline;
   final AddTransaction _addTransaction;
+  final LocalNotificationService? _notificationService;
   final Uuid _uuid;
 
   StreamSubscription<void>? _subscription;
@@ -175,13 +179,16 @@ class CaptureCubit extends Cubit<CaptureState> {
         final saved = await _addTransaction(transaction);
         saved.fold(
           onFailure: (f) => emit(state.copyWith(failure: f)),
-          onSuccess: (tx) => emit(
-            state.copyWith(
-              lastCaptured: tx,
-              capturedCount: state.capturedCount + 1,
-              clearFailure: true,
-            ),
-          ),
+          onSuccess: (tx) {
+            unawaited(_notificationService?.showTransactionNotification(tx));
+            emit(
+              state.copyWith(
+                lastCaptured: tx,
+                capturedCount: state.capturedCount + 1,
+                clearFailure: true,
+              ),
+            );
+          },
         );
       },
     );
