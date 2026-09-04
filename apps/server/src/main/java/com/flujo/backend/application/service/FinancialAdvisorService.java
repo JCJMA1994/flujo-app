@@ -60,24 +60,40 @@ public class FinancialAdvisorService {
                          t.getOccurredAt().getMonthValue() == currentMonth)
             .toList();
 
-        double totalExpensesMonth = currentMonthTxs.stream()
+        List<TransactionJpaEntity> activeTxs = currentMonthTxs;
+        if (activeTxs.isEmpty() && !allTransactions.isEmpty()) {
+            OffsetDateTime latest = allTransactions.get(0).getOccurredAt();
+            if (latest != null) {
+                int y = latest.getYear();
+                int m = latest.getMonthValue();
+                activeTxs = allTransactions.stream()
+                    .filter(t -> t.getOccurredAt() != null &&
+                                 t.getOccurredAt().getYear() == y &&
+                                 t.getOccurredAt().getMonthValue() == m)
+                    .toList();
+            } else {
+                activeTxs = allTransactions;
+            }
+        }
+
+        double totalExpensesMonth = activeTxs.stream()
             .filter(t -> "expense".equalsIgnoreCase(t.getType()))
             .mapToDouble(t -> t.getAmount() != null ? t.getAmount() : 0.0)
             .sum();
 
-        double totalIncomesMonth = currentMonthTxs.stream()
+        double totalIncomesMonth = activeTxs.stream()
             .filter(t -> "income".equalsIgnoreCase(t.getType()))
             .mapToDouble(t -> t.getAmount() != null ? t.getAmount() : 0.0)
             .sum();
 
-        Map<String, Double> expensesByCategory = currentMonthTxs.stream()
+        Map<String, Double> expensesByCategory = activeTxs.stream()
             .filter(t -> "expense".equalsIgnoreCase(t.getType()))
             .collect(Collectors.groupingBy(
                 t -> t.getCategoryId() != null ? t.getCategoryId() : "other",
                 Collectors.summingDouble(t -> t.getAmount() != null ? t.getAmount() : 0.0)
             ));
 
-        Map<String, Double> expensesByMerchant = currentMonthTxs.stream()
+        Map<String, Double> expensesByMerchant = activeTxs.stream()
             .filter(t -> "expense".equalsIgnoreCase(t.getType()) && t.getMerchant() != null)
             .collect(Collectors.groupingBy(
                 TransactionJpaEntity::getMerchant,

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../core/error/failures.dart';
@@ -139,6 +140,13 @@ class TransactionRepositoryImpl implements TransactionRepository {
       final acknowledged = await _remote.push(pending);
       await _local.markSynced(acknowledged);
       return const Success(null);
+    } on DioException catch (e) {
+      final message = e.type == DioExceptionType.connectionError
+          ? 'Sin conexión para sincronizar. Se reintentará luego.'
+          : (e.response?.data is Map && (e.response!.data as Map)['error'] != null
+              ? (e.response!.data as Map)['error'].toString()
+              : 'Error al sincronizar datos con el servidor.');
+      return FailureResult(ServerFailure(message));
     } on Object catch (e) {
       return FailureResult(ServerFailure(e.toString()));
     }

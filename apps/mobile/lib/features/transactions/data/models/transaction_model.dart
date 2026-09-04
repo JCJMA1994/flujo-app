@@ -101,7 +101,7 @@ class TransactionModel {
         'amount': amount,
         'currency': currency,
         'merchant': merchant,
-        'occurred_at': occurredAt.toIso8601String(),
+        'occurred_at': occurredAt.toUtc().toIso8601String(),
         'category_id': categoryId,
         'category_name': categoryName,
         'category_emoji': categoryEmoji,
