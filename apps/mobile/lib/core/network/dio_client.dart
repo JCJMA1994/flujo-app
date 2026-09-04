@@ -13,6 +13,12 @@ class DioClient {
     required FlutterSecureStorage storage,
     bool enableLogging = false,
   }) : _storage = storage {
+    if (kReleaseMode && baseUrl.startsWith('http://')) {
+      throw ArgumentError(
+        'Solo conexiones seguras HTTPS están permitidas en modo producción.',
+      );
+    }
+
     dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
