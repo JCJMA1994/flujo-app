@@ -32,6 +32,7 @@ import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
 import '../../features/transactions/presentation/cubit/dashboard_cubit.dart';
 import '../database/app_database.dart';
 import '../network/dio_client.dart';
+import '../security/biometric_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -45,6 +46,9 @@ Future<void> configureDependencies() async {
     // ---------- Infraestructura ----------
     ..registerLazySingleton(AppDatabase.new)
     ..registerLazySingleton(() => const FlutterSecureStorage())
+    ..registerLazySingleton(
+      () => BiometricService(storage: getIt()),
+    )
     ..registerLazySingleton(
       () => DioClient(baseUrl: _apiBaseUrl, storage: getIt()).dio,
     )

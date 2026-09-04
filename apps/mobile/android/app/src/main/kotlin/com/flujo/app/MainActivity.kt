@@ -11,13 +11,13 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.flujo.app.database.RawNotificationDatabaseHelper
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
 import kotlin.math.max
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
     companion object {
         private const val TAG = "FlujoMainActivity"
         private const val CHANNEL = "com.flujo.app/share"

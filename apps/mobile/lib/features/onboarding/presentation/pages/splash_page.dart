@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/security/biometric_service.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class SplashPage extends StatefulWidget {
@@ -79,7 +80,21 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     if (!mounted) return;
 
     if (authCubit.state.isAuthenticated) {
-      context.go(AppRoutes.dashboard);
+      final biometricService = getIt<BiometricService>();
+      final isLockEnabled = await biometricService.isBiometricLockEnabled();
+      if (isLockEnabled) {
+        final authenticated = await biometricService.authenticate();
+        if (!authenticated) {
+          if (mounted) {
+            context.go(AppRoutes.login);
+          }
+          return;
+        }
+      }
+
+      if (mounted) {
+        context.go(AppRoutes.dashboard);
+      }
     } else if (seen != 'true') {
       context.go(AppRoutes.onboarding);
     } else {

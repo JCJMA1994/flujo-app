@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/security/biometric_service.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../domain/usecases/usecases.dart';
@@ -29,6 +30,51 @@ class UserProfileSheet extends StatefulWidget {
 
 class _UserProfileSheetState extends State<UserProfileSheet> {
   bool _isSyncing = false;
+  bool _biometricsAvailable = false;
+  bool _isBiometricEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBiometricSettings();
+  }
+
+  Future<void> _loadBiometricSettings() async {
+    final biometricService = getIt<BiometricService>();
+    final available = await biometricService.isBiometricsAvailable();
+    final enabled = await biometricService.isBiometricLockEnabled();
+    if (!mounted) return;
+    setState(() {
+      _biometricsAvailable = available;
+      _isBiometricEnabled = enabled;
+    });
+  }
+
+  Future<void> _handleBiometricToggle(bool value) async {
+    final biometricService = getIt<BiometricService>();
+    final reason = value
+        ? 'Confirma tu huella o rostro para activar el bloqueo'
+        : 'Confirma tu identidad para desactivar el bloqueo';
+
+    final authenticated = await biometricService.authenticate(reason: reason);
+    if (!authenticated) return;
+
+    await biometricService.setBiometricLockEnabled(enabled: value);
+    if (!mounted) return;
+    setState(() => _isBiometricEnabled = value);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          value
+              ? 'Bloqueo biométrico activado'
+              : 'Bloqueo biométrico desactivado',
+        ),
+        backgroundColor: value ? Colors.green : Colors.grey[800],
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   Future<void> _handleSync() async {
     setState(() => _isSyncing = true);
@@ -172,6 +218,14 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
                   trailing:
                       Icon(Icons.verified_user_rounded, color: Colors.green),
                 ),
+                if (_biometricsAvailable)
+                  SwitchListTile(
+                    secondary: const Icon(Icons.fingerprint_rounded),
+                    title: const Text('Bloqueo biométrico'),
+                    subtitle: const Text('Solicita huella o rostro al abrir Flujo'),
+                    value: _isBiometricEnabled,
+                    onChanged: _handleBiometricToggle,
+                  ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
