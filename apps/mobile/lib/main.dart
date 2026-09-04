@@ -8,6 +8,7 @@ import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/auth/presentation/cubit/auth_state.dart';
 import 'features/capture/data/services/share_intent_service.dart';
 import 'features/capture/presentation/cubit/capture_cubit.dart';
 
@@ -40,13 +41,29 @@ class FlujoApp extends StatelessWidget {
         BlocProvider.value(value: getIt<CaptureCubit>()),
         BlocProvider.value(value: getIt<AuthCubit>()),
       ],
-      child: MaterialApp.router(
-        scaffoldMessengerKey: ShareIntentService.scaffoldMessengerKey,
-        title: 'Flujo: Gastos & Yape',
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        routerConfig: appRouter,
-        debugShowCheckedModeBanner: false,
+      child: BlocListener<AuthCubit, AuthState>(
+        listenWhen: (prev, curr) =>
+            prev.status != curr.status &&
+            curr.status == AuthStatus.unauthenticated &&
+            curr.errorMessage != null,
+        listener: (context, state) {
+          appRouter.go(AppRoutes.login);
+          ShareIntentService.scaffoldMessengerKey.currentState?.showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: Colors.redAccent,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+        child: MaterialApp.router(
+          scaffoldMessengerKey: ShareIntentService.scaffoldMessengerKey,
+          title: 'Flujo: Gastos & Yape',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          routerConfig: appRouter,
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

@@ -163,5 +163,17 @@ void main() {
         const AuthState(status: AuthStatus.unauthenticated),
       ],
     );
+
+    blocTest<AuthCubit, AuthState>(
+      'sessionExpired emite unauthenticated con mensaje de expiración',
+      build: () => authCubit,
+      act: (cubit) => cubit.sessionExpired(),
+      expect: () => [
+        const AuthState(
+          status: AuthStatus.unauthenticated,
+          errorMessage: 'Tu sesión ha expirado. Por favor, ingresa de nuevo.',
+        ),
+      ],
+    );
   });
 }

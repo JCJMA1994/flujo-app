@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../capture/presentation/cubit/capture_cubit.dart';
+import '../../data/services/transaction_export_service.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 import '../widgets/review_transaction_sheet.dart';
@@ -33,6 +34,11 @@ class _TransactionsView extends StatelessWidget {
       appBar: AppBar(
         title: const _SearchField(),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.file_download_outlined),
+            tooltip: 'Exportar a CSV',
+            onPressed: () => _exportTransactions(context),
+          ),
           IconButton(
             icon: const Icon(Icons.rule_folder_outlined),
             tooltip: 'Reglas automáticas',
@@ -179,6 +185,33 @@ class _TransactionsView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _exportTransactions(BuildContext context) async {
+    final state = context.read<TransactionBloc>().state;
+    if (state.transactions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay transacciones para exportar.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final exportService = getIt<TransactionExportService>();
+      await exportService.shareCsv(transactions: state.transactions);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al exportar: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
 

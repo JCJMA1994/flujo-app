@@ -26,6 +26,7 @@ import '../../features/transactions/data/datasources/drift_transaction_local_dat
 import '../../features/transactions/data/datasources/transaction_local_datasource.dart';
 import '../../features/transactions/data/datasources/transaction_remote_datasource.dart';
 import '../../features/transactions/data/repositories/transaction_repository_impl.dart';
+import '../../features/transactions/data/services/transaction_export_service.dart';
 import '../../features/transactions/domain/repositories/transaction_repository.dart';
 import '../../features/transactions/domain/usecases/usecases.dart';
 import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
@@ -49,8 +50,17 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(
       () => BiometricService(storage: getIt()),
     )
+    ..registerLazySingleton(TransactionExportService.new)
     ..registerLazySingleton(
-      () => DioClient(baseUrl: _apiBaseUrl, storage: getIt()).dio,
+      () => DioClient(
+        baseUrl: _apiBaseUrl,
+        storage: getIt(),
+        onUnauthorized: () {
+          if (getIt.isRegistered<AuthCubit>()) {
+            getIt<AuthCubit>().sessionExpired();
+          }
+        },
+      ).dio,
     )
 
     // ---------- Datasources ----------

@@ -11,6 +11,7 @@ class DioClient {
   DioClient({
     required String baseUrl,
     required FlutterSecureStorage storage,
+    this.onUnauthorized,
     bool enableLogging = false,
   }) : _storage = storage {
     if (kReleaseMode && baseUrl.startsWith('http://')) {
@@ -29,7 +30,7 @@ class DioClient {
     );
 
     dio.interceptors.addAll([
-      _AuthInterceptor(_storage),
+      _AuthInterceptor(_storage, onUnauthorized: onUnauthorized),
       _RetryInterceptor(dio),
       if (enableLogging)
         LogInterceptor(
@@ -43,6 +44,7 @@ class DioClient {
 
   late final Dio dio;
   final FlutterSecureStorage _storage;
+  final VoidCallback? onUnauthorized;
 
   static String _redact(String input) => input.replaceAll(
         RegExp(r'(Bearer\s+)[A-Za-z0-9._-]+'),
@@ -51,9 +53,10 @@ class DioClient {
 }
 
 class _AuthInterceptor extends Interceptor {
-  _AuthInterceptor(this._storage);
+  _AuthInterceptor(this._storage, {this.onUnauthorized});
 
   final FlutterSecureStorage _storage;
+  final VoidCallback? onUnauthorized;
   static const _tokenKey = 'access_token';
 
   @override
@@ -66,6 +69,24 @@ class _AuthInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
+  }
+
+  @override
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (err.response?.statusCode == 401) {
+      final path = err.requestOptions.path;
+      // No disparar auto-logout en login o register (credenciales incorrectas normales)
+      final isAuthEndpoint = path.contains('/v1/auth/login') ||
+          path.contains('/v1/auth/register');
+      if (!isAuthEndpoint) {
+        await _storage.delete(key: _tokenKey);
+        onUnauthorized?.call();
+      }
+    }
+    handler.next(err);
   }
 }
 

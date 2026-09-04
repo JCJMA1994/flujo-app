@@ -7,6 +7,8 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/security/biometric_service.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../data/services/transaction_export_service.dart';
+import '../../domain/repositories/transaction_repository.dart';
 import '../../domain/usecases/usecases.dart';
 
 class UserProfileSheet extends StatefulWidget {
@@ -74,6 +76,35 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  Future<void> _handleExport(BuildContext context) async {
+    try {
+      final repository = getIt<TransactionRepository>();
+      final transactions =
+          await repository.watchTransactions(const TransactionFilter()).first;
+      if (transactions.isEmpty) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No hay transacciones registradas para exportar.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      final exportService = getIt<TransactionExportService>();
+      await exportService.shareCsv(transactions: transactions);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al exportar transacciones: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _handleSync() async {
@@ -226,6 +257,13 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
                     value: _isBiometricEnabled,
                     onChanged: _handleBiometricToggle,
                   ),
+                ListTile(
+                  leading: const Icon(Icons.file_download_outlined),
+                  title: const Text('Exportar transacciones'),
+                  subtitle:
+                      const Text('Descargar reporte en formato CSV / Excel'),
+                  onTap: () => _handleExport(context),
+                ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,

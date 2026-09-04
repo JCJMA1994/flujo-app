@@ -87,4 +87,13 @@ class AuthCubit extends Cubit<AuthState> {
     await _logoutUseCase();
     emit(const AuthState(status: AuthStatus.unauthenticated));
   }
+
+  void sessionExpired() {
+    emit(
+      const AuthState(
+        status: AuthStatus.unauthenticated,
+        errorMessage: 'Tu sesión ha expirado. Por favor, ingresa de nuevo.',
+      ),
+    );
+  }
 }
