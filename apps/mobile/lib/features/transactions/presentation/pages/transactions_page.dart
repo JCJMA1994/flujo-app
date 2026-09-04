@@ -7,7 +7,6 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../capture/presentation/cubit/capture_cubit.dart';
 import '../../domain/entities/transaction.dart';
-import '../../domain/repositories/transaction_repository.dart';
 import '../bloc/transaction_bloc.dart';
 import '../widgets/review_transaction_sheet.dart';
 import '../widgets/transaction_form_sheet.dart';
@@ -45,126 +44,39 @@ class _TransactionsView extends StatelessWidget {
           child: _ScopeFilter(),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await getIt<TransactionRepository>().syncPending();
+      body: BlocConsumer<TransactionBloc, TransactionState>(
+        listenWhen: (p, c) => p.failure != c.failure && c.failure != null,
+        listener: (context, state) {
+          if (state.failure != null) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state.failure!.message),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
+          }
         },
-        child: BlocBuilder<TransactionBloc, TransactionState>(
-          buildWhen: (p, c) =>
-              p.status != c.status || p.transactions != c.transactions,
-          builder: (context, state) {
-            if (state.status == TransactionStatus.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state.transactions.isEmpty) {
-              return const _EmptyView();
-            }
-            final expenses =
-                state.transactions.where((t) => t.isExpense).toList();
-            final totalExpense =
-                expenses.fold<double>(0, (sum, t) => sum + t.amount);
-            final avgExpense =
-                expenses.isEmpty ? 0.0 : totalExpense / expenses.length;
-
-            return Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.receipt_outlined,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${state.transactions.length} movimientos',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.trending_up_rounded,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Promedio: S/ ${avgExpense.toStringAsFixed(2)}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isWide = constraints.maxWidth > 680;
-                      if (isWide) {
-                        return GridView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 480,
-                            mainAxisExtent: 82,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 10,
-                          ),
-                          itemCount: state.transactions.length,
-                          itemBuilder: (_, i) => _TransactionCard(
-                            transaction: state.transactions[i],
-                          ),
-                        );
-                      }
-
-                      return ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        itemCount: state.transactions.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (_, i) => _TransactionCard(
-                          transaction: state.transactions[i],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+        buildWhen: (p, c) =>
+            p.status != c.status ||
+            p.transactions != c.transactions ||
+            p.isSyncing != c.isSyncing,
+        builder: (context, state) {
+          if (state.status == TransactionStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return RefreshIndicator(
+            onRefresh: () async {
+              context
+                  .read<TransactionBloc>()
+                  .add(const TransactionSyncRequested());
+            },
+            child: state.transactions.isEmpty
+                ? const _EmptyView()
+                : _buildTransactionsList(context, state),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => TransactionFormSheet.show(context),
@@ -172,6 +84,100 @@ class _TransactionsView extends StatelessWidget {
         label: const Text('Nuevo'),
         tooltip: 'Registrar movimiento manual',
       ),
+    );
+  }
+
+  Widget _buildTransactionsList(BuildContext context, TransactionState state) {
+    final expenses = state.transactions.where((t) => t.isExpense).toList();
+    final totalExpense = expenses.fold<double>(0, (sum, t) => sum + t.amount);
+    final avgExpense = expenses.isEmpty ? 0.0 : totalExpense / expenses.length;
+
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.receipt_outlined,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${state.transactions.length} movimientos',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.trending_up_rounded,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Promedio: S/ ${avgExpense.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 680;
+              if (isWide) {
+                return GridView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 480,
+                    mainAxisExtent: 82,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: state.transactions.length,
+                  itemBuilder: (_, i) => _TransactionCard(
+                    transaction: state.transactions[i],
+                  ),
+                );
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                itemCount: state.transactions.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (_, i) => _TransactionCard(
+                  transaction: state.transactions[i],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

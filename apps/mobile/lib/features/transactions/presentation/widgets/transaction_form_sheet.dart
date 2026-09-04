@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/di/injection.dart';
@@ -77,6 +78,7 @@ class _TransactionFormSheetState extends State<TransactionFormSheet> {
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) return;
 
+    await HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
 
     final isEditing = widget.initialTransaction != null;
@@ -189,6 +191,7 @@ class _TransactionFormSheetState extends State<TransactionFormSheet> {
                 ],
                 selected: {_selectedType},
                 onSelectionChanged: (set) {
+                  HapticFeedback.selectionClick();
                   final newType = set.first;
                   setState(() {
                     _selectedType = newType;
@@ -219,7 +222,37 @@ class _TransactionFormSheetState extends State<TransactionFormSheet> {
                   return null;
                 },
               ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final preset in [5, 10, 20, 50, 100])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ActionChip(
+                          avatar: const Icon(Icons.add_rounded, size: 14),
+                          label: Text('S/ $preset'),
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            final current = double.tryParse(
+                                  _amountController.text.trim(),
+                                ) ??
+                                0;
+
+                            final next = current > 0
+                                ? current + preset
+                                : preset.toDouble();
+                            _amountController.text = next.toStringAsFixed(2);
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
+
               TextFormField(
                 controller: _merchantController,
                 decoration: InputDecoration(

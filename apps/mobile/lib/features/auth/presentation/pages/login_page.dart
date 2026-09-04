@@ -41,6 +41,8 @@ class _LoginPageState extends State<LoginPage> {
     final colorScheme = theme.colorScheme;
 
     return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (prev, curr) =>
+          prev.status != curr.status || prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
           context.go(AppRoutes.dashboard);
@@ -55,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       },
+      buildWhen: (prev, curr) => prev.status != curr.status,
       builder: (context, state) {
         final isLoading = state.status == AuthStatus.loading;
 

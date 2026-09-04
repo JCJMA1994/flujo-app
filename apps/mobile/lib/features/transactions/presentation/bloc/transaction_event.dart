@@ -12,6 +12,11 @@ final class TransactionsSubscriptionRequested extends TransactionEvent {
   const TransactionsSubscriptionRequested();
 }
 
+/// Dispara la sincronización con el backend para transacciones pendientes.
+final class TransactionSyncRequested extends TransactionEvent {
+  const TransactionSyncRequested();
+}
+
 /// Emitido internamente cuando el stream entrega datos nuevos.
 final class _TransactionsUpdated extends TransactionEvent {
   const _TransactionsUpdated(this.transactions);

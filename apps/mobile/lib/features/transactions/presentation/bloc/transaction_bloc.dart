@@ -23,12 +23,18 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   TransactionBloc({
     required WatchTransactions watchTransactions,
     required DeleteTransaction deleteTransaction,
+    required SyncPendingTransactions syncPendingTransactions,
   })  : _watchTransactions = watchTransactions,
         _deleteTransaction = deleteTransaction,
+        _syncPendingTransactions = syncPendingTransactions,
         super(const TransactionState()) {
     on<TransactionsSubscriptionRequested>(_onSubscriptionRequested);
     on<_TransactionsUpdated>(_onTransactionsUpdated);
     on<_TransactionsFailed>(_onTransactionsFailed);
+    on<TransactionSyncRequested>(
+      _onSyncRequested,
+      transformer: droppable(),
+    );
 
     // Solo la búsqueda lleva debounce; los demás filtros son toques discretos.
     on<SearchQueryChanged>(
@@ -43,6 +49,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
 
   final WatchTransactions _watchTransactions;
   final DeleteTransaction _deleteTransaction;
+  final SyncPendingTransactions _syncPendingTransactions;
 
   /// El filtro vive como stream para poder aplicarle `switchMap`: cada cambio
   /// cancela la suscripción anterior y abre una nueva al repositorio.
@@ -133,6 +140,23 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
         ? ids.remove(event.categoryId)
         : ids.add(event.categoryId);
     _updateFilter(emit, state.filter.copyWith(categoryIds: ids));
+  }
+
+  Future<void> _onSyncRequested(
+    TransactionSyncRequested event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(state.copyWith(isSyncing: true));
+    final result = await _syncPendingTransactions();
+    result.fold(
+      onFailure: (failure) => emit(
+        state.copyWith(
+          isSyncing: false,
+          failure: failure,
+        ),
+      ),
+      onSuccess: (_) => emit(state.copyWith(isSyncing: false)),
+    );
   }
 
   Future<void> _onDeleted(

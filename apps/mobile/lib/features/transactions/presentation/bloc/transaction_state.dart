@@ -8,12 +8,14 @@ final class TransactionState extends Equatable {
     this.transactions = const [],
     this.filter = const TransactionFilter(),
     this.failure,
+    this.isSyncing = false,
   });
 
   final TransactionStatus status;
   final List<Transaction> transactions;
   final TransactionFilter filter;
   final Failure? failure;
+  final bool isSyncing;
 
   List<Transaction> get pendingReview =>
       transactions.where((t) => t.needsReview).toList();
@@ -25,6 +27,7 @@ final class TransactionState extends Equatable {
     List<Transaction>? transactions,
     TransactionFilter? filter,
     Failure? failure,
+    bool? isSyncing,
     bool clearFailure = false,
   }) {
     return TransactionState(
@@ -32,9 +35,10 @@ final class TransactionState extends Equatable {
       transactions: transactions ?? this.transactions,
       filter: filter ?? this.filter,
       failure: clearFailure ? null : (failure ?? this.failure),
+      isSyncing: isSyncing ?? this.isSyncing,
     );
   }
 
   @override
-  List<Object?> get props => [status, transactions, filter, failure];
+  List<Object?> get props => [status, transactions, filter, failure, isSyncing];
 }

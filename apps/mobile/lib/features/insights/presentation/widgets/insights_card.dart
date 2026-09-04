@@ -15,6 +15,10 @@ class InsightsCard extends StatelessWidget {
         NumberFormat.currency(locale: 'es_PE', symbol: 'S/ ');
 
     return BlocBuilder<InsightsCubit, InsightsState>(
+      buildWhen: (prev, curr) =>
+          prev.status != curr.status ||
+          prev.projection != curr.projection ||
+          prev.recurringExpenses != curr.recurringExpenses,
       builder: (context, state) {
         if (state.status == InsightsStatus.loading ||
             state.status == InsightsStatus.initial) {

@@ -64,6 +64,11 @@ class DashboardCubit extends Cubit<DashboardState> {
     selectMonth(DateTime(current.year, current.month + 1));
   }
 
+  void goToCurrentMonth() {
+    final now = DateTime.now();
+    selectMonth(DateTime(now.year, now.month));
+  }
+
   @override
   Future<void> close() async {
     await _subscription?.cancel();

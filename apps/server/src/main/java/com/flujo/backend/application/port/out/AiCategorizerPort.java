@@ -8,4 +8,5 @@ import com.flujo.backend.domain.model.InterpretationResult;
  */
 public interface AiCategorizerPort {
     InterpretationResult interpret(FinancialNotification notification);
+    InterpretationResult interpretImage(byte[] imageBytes, String mimeType);
 }

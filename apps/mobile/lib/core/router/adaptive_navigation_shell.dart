@@ -32,6 +32,7 @@ class AdaptiveNavigationShell extends StatelessWidget {
     final isLargeScreen = width >= _breakpoint;
 
     return BlocBuilder<CaptureCubit, CaptureState>(
+      buildWhen: (prev, curr) => prev.permission != curr.permission,
       builder: (context, captureState) {
         final isCaptureActive =
             captureState.permission == CapturePermission.granted;

@@ -44,6 +44,8 @@ class _RegisterPageState extends State<RegisterPage> {
     final colorScheme = theme.colorScheme;
 
     return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (prev, curr) =>
+          prev.status != curr.status || prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
           context.go(AppRoutes.dashboard);
@@ -58,6 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         }
       },
+      buildWhen: (prev, curr) => prev.status != curr.status,
       builder: (context, state) {
         final isLoading = state.status == AuthStatus.loading;
 

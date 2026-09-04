@@ -13,9 +13,10 @@ public record InterpretationResult(
     OffsetDateTime occurredAt,
     String categoryId,
     String bankId,
-    Double confidence
+    Double confidence,
+    String type
 ) {
     public static InterpretationResult empty() {
-        return new InterpretationResult(null, null, null, null, null, null, 0.0);
+        return new InterpretationResult(null, null, null, null, null, null, 0.0, "expense");
     }
 }

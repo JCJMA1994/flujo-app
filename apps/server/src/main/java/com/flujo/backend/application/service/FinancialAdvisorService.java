@@ -30,7 +30,7 @@ public class FinancialAdvisorService {
     public FinancialAdvisorService(
         SpringDataTransactionRepository transactionRepository,
         @Value("${gemini.api-key:}") String apiKey,
-        @Value("${gemini.model:gemini-2.5-flash}") String model,
+        @Value("${gemini.model:gemini-flash-latest}") String model,
         @Value("${gemini.api-url:https://generativelanguage.googleapis.com/v1beta/models}") String apiUrl,
         ObjectMapper objectMapper
     ) {
@@ -107,7 +107,7 @@ public class FinancialAdvisorService {
         Map<String, Double> byCategory,
         Map<String, Double> byMerchant
     ) throws Exception {
-        String endpoint = "%s/%s:generateContent?key=%s".formatted(apiUrl, model, apiKey);
+        String endpoint = "%s/%s:generateContent".formatted(apiUrl, model);
 
         String systemPrompt = """
             Eres el Asistente Financiero inteligente de la app 'Flujo'.
@@ -154,6 +154,7 @@ public class FinancialAdvisorService {
 
         String responseJson = restClient.post()
             .uri(endpoint)
+            .header("X-goog-api-key", apiKey)
             .contentType(MediaType.APPLICATION_JSON)
             .body(requestBody)
             .retrieve()

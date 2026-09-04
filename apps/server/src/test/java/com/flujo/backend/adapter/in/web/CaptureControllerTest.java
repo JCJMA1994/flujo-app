@@ -39,7 +39,8 @@ class CaptureControllerTest {
             OffsetDateTime.now(),
             "food",
             "yape",
-            0.98
+            0.98,
+            "expense"
         );
 
         when(interpretationService.interpret(eq("Yapeaste S/ 25.50 a La Lucha"), eq("com.bcp.innovacxion.yapeapp")))
@@ -61,6 +62,7 @@ class CaptureControllerTest {
             .andExpect(jsonPath("$.merchant").value("La Lucha Sanguchería"))
             .andExpect(jsonPath("$.category_id").value("food"))
             .andExpect(jsonPath("$.bank_id").value("yape"))
-            .andExpect(jsonPath("$.confidence").value(0.98));
+            .andExpect(jsonPath("$.confidence").value(0.98))
+            .andExpect(jsonPath("$.type").value("expense"));
     }
 }

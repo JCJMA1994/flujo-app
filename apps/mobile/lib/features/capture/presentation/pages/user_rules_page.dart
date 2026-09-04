@@ -19,6 +19,7 @@ class UserRulesPage extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
           child: BlocBuilder<CaptureCubit, CaptureState>(
+            buildWhen: (prev, curr) => prev.rules != curr.rules,
             builder: (context, state) {
               if (state.rules.isEmpty) {
                 return Center(

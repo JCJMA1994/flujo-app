@@ -10,7 +10,6 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/auth_usecases.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/capture/data/datasources/ai_categorizer_datasource.dart';
-import '../../features/capture/data/datasources/gemini_ai_categorizer_datasource.dart';
 import '../../features/capture/data/datasources/notification_listener_datasource.dart';
 import '../../features/capture/data/parsers/bank_parsers.dart';
 import '../../features/capture/data/parsers/expense_parsing_pipeline.dart';
@@ -41,8 +40,6 @@ const _apiBaseUrl = String.fromEnvironment(
   defaultValue: 'https://api.system-failed-tech.com',
 );
 
-const _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
-
 Future<void> configureDependencies() async {
   getIt
     // ---------- Infraestructura ----------
@@ -65,15 +62,8 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<TransactionRemoteDataSource>(
       () => TransactionRemoteDataSourceImpl(getIt()),
     )
-    ..registerLazySingleton<GeminiAiCategorizerDataSource>(
-      () => GeminiAiCategorizerDataSource(
-        dio: getIt(),
-        storage: getIt(),
-        defaultApiKey: _geminiApiKey.isNotEmpty ? _geminiApiKey : null,
-      ),
-    )
     ..registerLazySingleton<AiCategorizerDataSource>(
-      getIt.call<GeminiAiCategorizerDataSource>,
+      () => RemoteAiCategorizerDataSource(getIt()),
     )
     ..registerLazySingleton<NotificationListenerDataSource>(
       // iOS no puede leer notificaciones ajenas: ahí va el noop y la
@@ -154,6 +144,7 @@ Future<void> configureDependencies() async {
       () => TransactionBloc(
         watchTransactions: getIt(),
         deleteTransaction: getIt(),
+        syncPendingTransactions: getIt(),
       ),
     )
     ..registerFactory(() => DashboardCubit(watchMonthlySummary: getIt()))

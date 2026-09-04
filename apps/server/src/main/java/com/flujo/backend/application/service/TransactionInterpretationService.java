@@ -39,4 +39,11 @@ public class TransactionInterpretationService {
             return aiCategorizer.interpret(notification);
         });
     }
+
+    public InterpretationResult interpretImage(byte[] imageBytes, String mimeType) {
+        if (imageBytes == null || imageBytes.length == 0) {
+            return InterpretationResult.empty();
+        }
+        return aiCategorizer.interpretImage(imageBytes, mimeType);
+    }
 }

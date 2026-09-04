@@ -98,6 +98,8 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
     final theme = Theme.of(context);
 
     return BlocBuilder<AuthCubit, AuthState>(
+      buildWhen: (prev, curr) =>
+          prev.user != curr.user || prev.status != curr.status,
       builder: (context, state) {
         final user = state.user;
         final name = user?.name ?? 'Usuario';

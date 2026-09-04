@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flujo/core/utils/result.dart';
 import 'package:flujo/features/transactions/domain/entities/transaction.dart';
 import 'package:flujo/features/transactions/domain/repositories/transaction_repository.dart';
 import 'package:flujo/features/transactions/domain/usecases/usecases.dart';
@@ -10,9 +11,13 @@ class MockWatchTransactions extends Mock implements WatchTransactions {}
 
 class MockDeleteTransaction extends Mock implements DeleteTransaction {}
 
+class MockSyncPendingTransactions extends Mock
+    implements SyncPendingTransactions {}
+
 void main() {
   late MockWatchTransactions watchTransactions;
   late MockDeleteTransaction deleteTransaction;
+  late MockSyncPendingTransactions syncPendingTransactions;
 
   const category = Category(id: 'food', name: 'Comida', emoji: '🍔');
 
@@ -32,6 +37,7 @@ void main() {
   setUp(() {
     watchTransactions = MockWatchTransactions();
     deleteTransaction = MockDeleteTransaction();
+    syncPendingTransactions = MockSyncPendingTransactions();
   });
 
   blocTest<TransactionBloc, TransactionState>(
@@ -43,6 +49,7 @@ void main() {
     build: () => TransactionBloc(
       watchTransactions: watchTransactions,
       deleteTransaction: deleteTransaction,
+      syncPendingTransactions: syncPendingTransactions,
     ),
     act: (bloc) => bloc.add(const TransactionsSubscriptionRequested()),
     expect: () => [
@@ -63,6 +70,7 @@ void main() {
     build: () => TransactionBloc(
       watchTransactions: watchTransactions,
       deleteTransaction: deleteTransaction,
+      syncPendingTransactions: syncPendingTransactions,
     ),
     act: (bloc) => bloc
       ..add(const SearchQueryChanged('s'))
@@ -71,6 +79,27 @@ void main() {
     wait: const Duration(milliseconds: 500),
     verify: (bloc) {
       expect(bloc.state.filter.query, 'star');
+    },
+  );
+
+  blocTest<TransactionBloc, TransactionState>(
+    'sincroniza pendientes al emitir TransactionSyncRequested',
+    setUp: () {
+      when(() => syncPendingTransactions())
+          .thenAnswer((_) async => const Success(null));
+    },
+    build: () => TransactionBloc(
+      watchTransactions: watchTransactions,
+      deleteTransaction: deleteTransaction,
+      syncPendingTransactions: syncPendingTransactions,
+    ),
+    act: (bloc) => bloc.add(const TransactionSyncRequested()),
+    expect: () => [
+      const TransactionState(isSyncing: true),
+      const TransactionState(),
+    ],
+    verify: (_) {
+      verify(() => syncPendingTransactions()).called(1);
     },
   );
 }

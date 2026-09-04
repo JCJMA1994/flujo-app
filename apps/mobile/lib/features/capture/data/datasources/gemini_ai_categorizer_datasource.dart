@@ -27,7 +27,7 @@ class GeminiAiCategorizerDataSource implements AiCategorizerDataSource {
   final String? _defaultApiKey;
 
   static const _storageKey = 'gemini_api_key';
-  static const _model = 'gemini-3.6-flash';
+  static const _model = 'gemini-flash-latest';
 
   static const _systemInstruction = '''
 Eres un asistente experto de finanzas personales y empresariales en Perú. Tu función es analizar imágenes de comprobantes/vouchers (Yape, Plin, BCP, BBVA, Interbank, etc.) y textos de notificaciones bancarias peruanas.
@@ -105,12 +105,12 @@ Responde ÚNICAMENTE con el objeto JSON válido.
     List<Map<String, dynamic>> contents,
     String apiKey,
   ) async {
-    final modelsToTry = [_model, 'gemini-flash-latest'];
+    final modelsToTry = [_model, 'gemini-1.5-flash'];
     DioException? lastDioException;
 
     for (final model in modelsToTry) {
       final url =
-          'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey';
+          'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent';
       final requestBody = {
         'systemInstruction': {
           'parts': [
@@ -130,7 +130,10 @@ Responde ÚNICAMENTE con el objeto JSON válido.
             url,
             data: requestBody,
             options: Options(
-              headers: {'Content-Type': 'application/json'},
+              headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': apiKey,
+              },
               sendTimeout: const Duration(seconds: 25),
               receiveTimeout: const Duration(seconds: 40),
             ),
@@ -267,6 +270,7 @@ Responde ÚNICAMENTE con el objeto JSON válido.
     }
   }
 
+  @override
   Future<Result<ParsedExpense>> interpretImage({
     required List<int> imageBytes,
     String mimeType = 'image/jpeg',

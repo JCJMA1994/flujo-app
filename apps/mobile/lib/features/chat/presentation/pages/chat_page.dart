@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
@@ -51,6 +52,7 @@ class _ChatViewState extends State<_ChatView> {
   void _handleSend(String text) {
     final clean = text.trim();
     if (clean.isEmpty) return;
+    HapticFeedback.lightImpact();
     _controller.clear();
     context.read<ChatCubit>().sendMessage(clean);
     _scrollToBottom();
@@ -98,6 +100,10 @@ class _ChatViewState extends State<_ChatView> {
         ),
       ),
       body: BlocConsumer<ChatCubit, ChatState>(
+        listenWhen: (prev, curr) =>
+            prev.status != curr.status ||
+            prev.messages.length != curr.messages.length ||
+            prev.errorMessage != curr.errorMessage,
         listener: (context, state) {
           _scrollToBottom();
           if (state.status == ChatStatus.error && state.errorMessage != null) {
@@ -109,6 +115,10 @@ class _ChatViewState extends State<_ChatView> {
             );
           }
         },
+        buildWhen: (prev, curr) =>
+            prev.status != curr.status ||
+            prev.messages != curr.messages ||
+            prev.activeChips != curr.activeChips,
         builder: (context, state) {
           return Column(
             children: [
@@ -285,14 +295,67 @@ class _MessageBubble extends StatelessWidget {
             bottomRight: Radius.circular(isUser ? 4 : 16),
           ),
         ),
-        child: Text(
-          message.text,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: isUser
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
-            height: 1.4,
-          ),
+        child: Column(
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Text(
+              message.text,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: isUser
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface,
+                height: 1.4,
+              ),
+            ),
+            if (!isUser) ...[
+              const SizedBox(height: 4),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  InkWell(
+                    borderRadius: BorderRadius.circular(6),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: message.text));
+                      HapticFeedback.lightImpact();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Copiado al portapapeles'),
+                          duration: Duration(seconds: 1),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.copy_rounded,
+                            size: 13,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Copiar',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
         ),
       ),
     );

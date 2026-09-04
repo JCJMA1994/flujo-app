@@ -7,20 +7,20 @@ import 'package:uuid/uuid.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/usecases/usecases.dart';
 import '../../domain/entities/parsed_expense.dart';
-import '../datasources/gemini_ai_categorizer_datasource.dart';
+import '../datasources/ai_categorizer_datasource.dart';
 
 /// Servicio que intercepta imágenes o textos compartidos desde Yape, Plin u otras apps
-/// mediante el menú "Compartir" de Android (Share Target) y los procesa con Gemini.
+/// mediante el menú "Compartir" de Android (Share Target) y los procesa con la IA del backend.
 class ShareIntentService {
   ShareIntentService({
-    required GeminiAiCategorizerDataSource aiCategorizer,
+    required AiCategorizerDataSource aiCategorizer,
     required AddTransaction addTransaction,
     Uuid uuid = const Uuid(),
   })  : _ai = aiCategorizer,
         _addTransaction = addTransaction,
         _uuid = uuid;
 
-  final GeminiAiCategorizerDataSource _ai;
+  final AiCategorizerDataSource _ai;
   final AddTransaction _addTransaction;
   final Uuid _uuid;
 

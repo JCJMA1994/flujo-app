@@ -34,7 +34,8 @@ public class CaptureController {
         @JsonProperty("occurred_at") String occurredAt,
         @JsonProperty("category_id") String categoryId,
         @JsonProperty("bank_id") String bankId,
-        Double confidence
+        Double confidence,
+        String type
     ) {}
 
     @PostMapping("/interpret")
@@ -55,7 +56,45 @@ public class CaptureController {
             occurredAtStr,
             result.categoryId(),
             result.bankId(),
-            result.confidence()
+            result.confidence(),
+            result.type()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    public record InterpretImageRequest(
+        @NotBlank @JsonProperty("image_base64") String imageBase64,
+        @JsonProperty("mime_type") String mimeType
+    ) {}
+
+    @PostMapping("/interpret-image")
+    public ResponseEntity<InterpretResponse> interpretImage(@RequestBody InterpretImageRequest request) {
+        byte[] imageBytes;
+        try {
+            imageBytes = java.util.Base64.getDecoder().decode(request.imageBase64());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        InterpretationResult result = interpretationService.interpretImage(
+            imageBytes,
+            request.mimeType()
+        );
+
+        String occurredAtStr = result.occurredAt() != null
+            ? result.occurredAt().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            : null;
+
+        InterpretResponse response = new InterpretResponse(
+            result.amount(),
+            result.currency(),
+            result.merchant(),
+            occurredAtStr,
+            result.categoryId(),
+            result.bankId(),
+            result.confidence(),
+            result.type()
         );
 
         return ResponseEntity.ok(response);
