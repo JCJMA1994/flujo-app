@@ -40,32 +40,47 @@ class FlujoNotificationListener : NotificationListenerService() {
             "com.bbva.pe.bbvacontigo",
             // ── Scotiabank ──
             "pe.scotiabank.banking",
+            // ── Banco de la Nación ──
+            "pe.gob.bn.bnamovil",
+            "pe.gob.bn.app",
+            // ── Banco Falabella ──
+            "pe.bancofalabella.movil",
+            "pe.falabella.bancofalabella",
+            // ── Banco Ripley ──
+            "pe.com.ripley.banco",
             // ── BanBif ──
             "pe.com.banbif.android",
             "pe.com.banbif.banbifmovil",
             // ── Banco Pichincha ──
             "com.pichincha.pe",
-            // ── Pexpe (Caja Piura) ──
+            // ── Cajas Municipales (Apps oficiales) ──
+            "pe.com.cajaarequipa.cajamovil",
+            "pe.com.cajaarequipa.agora",
+            "pe.com.cajahuancayo.cajamovil",
+            "pe.com.cajahuancayo.migente",
+            "pe.com.cajapiura.cajamovil",
             "pe.com.cajapiura.pexpe",
             "com.pexpe.app",
-            // ── Tunki (Interbank) ──
+            "pe.com.cajacusco.cmacmovil",
+            // ── Billeteras Digitales Peruanas ──
+            "pe.com.pdp.bim",
             "pe.interbank.tunki",
             "com.tunki.app",
-            // ── Agora (Caja Arequipa) ──
-            "pe.com.cajaarequipa.agora",
-            // ── MiGente (Caja Huancayo) ──
-            "pe.com.cajahuancayo.migente",
-            // ── Mercado Pago ──
-            "com.mercadopago.wallet",
-            "com.mercadolibre.wallet",
-            // ── Máximo ──
+            "pe.com.agora.wallet",
+            "pe.com.agora",
+            "pe.com.tarjetasperuanas.ligo",
+            "pe.com.ligo.app",
             "pe.com.maximo.app",
             "com.maximo.wallet",
-            // ── Lemon Cash ──
+            // ── Billeteras Internacionales / Remesas ──
+            "com.paypal.android.p2pmobile",
+            "com.mercadopago.wallet",
+            "com.mercadolibre.wallet",
             "ar.com.lemon",
             "com.lemoncash.app",
-            // ── Rappi Pay ──
-            "com.grability.rappi"
+            "com.grability.rappi",
+            "com.westernunion.android.wsapp.pe",
+            "com.westernunion.moneytransfer"
         )
 
         @Volatile

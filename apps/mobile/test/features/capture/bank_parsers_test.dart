@@ -98,6 +98,23 @@ void main() {
       expect(result.type, TransactionType.income);
       expect(result.confidence, 1);
     });
+
+    test('reconoce ingreso de remesa internacional de Yape', () {
+      final result = parser.parse(
+        notification(
+          'com.bcp.innovacxion.yapeapp',
+          '¡Recibiste una remesa!',
+          'Te enviaron S/ 550.00 desde Estados Unidos.',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.amount, 550);
+      expect(result.currency, 'PEN');
+      expect(result.merchant, 'Remesa: Estados Unidos');
+      expect(result.type, TransactionType.income);
+      expect(result.confidence, 1);
+    });
   });
 
   group('PlinParser', () {
@@ -227,6 +244,44 @@ void main() {
       expect(result.currency, 'PEN');
       expect(result.merchant, 'helphbomaxcom');
       expect(result.type, TransactionType.expense);
+      expect(result.confidence, 1);
+    });
+  });
+
+  group('PayPalParser', () {
+    final parser = PayPalParser();
+
+    test('reconoce pago/gasto con PayPal', () {
+      final result = parser.parse(
+        notification(
+          'com.paypal.android.p2pmobile',
+          'PayPal',
+          r'Has enviado un pago de $ 15.50 USD a Netflix.',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.amount, 15.5);
+      expect(result.currency, 'USD');
+      expect(result.merchant, 'Netflix');
+      expect(result.type, TransactionType.expense);
+      expect(result.confidence, 1);
+    });
+
+    test('reconoce dinero recibido con PayPal en dólares', () {
+      final result = parser.parse(
+        notification(
+          'com.paypal.android.p2pmobile',
+          'PayPal',
+          r'Has recibido $ 50.00 USD de Jane Doe.',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.amount, 50);
+      expect(result.currency, 'USD');
+      expect(result.merchant, 'Jane Doe');
+      expect(result.type, TransactionType.income);
       expect(result.confidence, 1);
     });
   });

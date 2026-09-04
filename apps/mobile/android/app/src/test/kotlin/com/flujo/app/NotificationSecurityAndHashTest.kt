@@ -18,22 +18,39 @@ class NotificationSecurityAndHashTest {
         "pe.plin.app",
         "com.bbva.pe.bbvacontigo",
         "pe.scotiabank.banking",
+        "pe.gob.bn.bnamovil",
+        "pe.gob.bn.app",
+        "pe.bancofalabella.movil",
+        "pe.falabella.bancofalabella",
+        "pe.com.ripley.banco",
         "pe.com.banbif.android",
         "pe.com.banbif.banbifmovil",
         "com.pichincha.pe",
+        "pe.com.cajaarequipa.cajamovil",
+        "pe.com.cajaarequipa.agora",
+        "pe.com.cajahuancayo.cajamovil",
+        "pe.com.cajahuancayo.migente",
+        "pe.com.cajapiura.cajamovil",
         "pe.com.cajapiura.pexpe",
         "com.pexpe.app",
+        "pe.com.cajacusco.cmacmovil",
+        "pe.com.pdp.bim",
         "pe.interbank.tunki",
         "com.tunki.app",
-        "pe.com.cajaarequipa.agora",
-        "pe.com.cajahuancayo.migente",
-        "com.mercadopago.wallet",
-        "com.mercadolibre.wallet",
+        "pe.com.agora.wallet",
+        "pe.com.agora",
+        "pe.com.tarjetasperuanas.ligo",
+        "pe.com.ligo.app",
         "pe.com.maximo.app",
         "com.maximo.wallet",
+        "com.paypal.android.p2pmobile",
+        "com.mercadopago.wallet",
+        "com.mercadolibre.wallet",
         "ar.com.lemon",
         "com.lemoncash.app",
-        "com.grability.rappi"
+        "com.grability.rappi",
+        "com.westernunion.android.wsapp.pe",
+        "com.westernunion.moneytransfer"
     )
 
     private fun computeSha256(input: String): String {
@@ -47,6 +64,9 @@ class NotificationSecurityAndHashTest {
         assertTrue(authorizedBankPackages.contains("com.bcp.innovacxion.yapeapp"))
         assertTrue(authorizedBankPackages.contains("pe.plin.app"))
         assertTrue(authorizedBankPackages.contains("com.bbva.pe.bbvacontigo"))
+        assertTrue(authorizedBankPackages.contains("com.paypal.android.p2pmobile"))
+        assertTrue(authorizedBankPackages.contains("pe.gob.bn.bnamovil"))
+        assertTrue(authorizedBankPackages.contains("pe.com.pdp.bim"))
 
         // Apps de mensajería y redes deben ser rechazadas categóricamente
         assertFalse(authorizedBankPackages.contains("com.whatsapp"))

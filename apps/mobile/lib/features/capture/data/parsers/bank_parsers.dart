@@ -89,6 +89,11 @@ class YapeParser with AmountParsing implements BankParser {
         'com.bcp.yape',
       };
 
+  static final _incomingRemesa = RegExp(
+    r'(?:recibiste\s+una\s+remesa!?|te\s+enviaron\s+una\s+remesa!?|remesa).*?(?:S/\.?|US\$|PEN|\$)?\s?([\d,]+(?:\.\d{1,2})?)(?:\s+(?:de|desde)\s+(.+?))?(?:\.|$)',
+    caseSensitive: false,
+  );
+
   static final _incomingTeEnvio = RegExp(
     r'(?:(?:te\s+acaban\s+de\s+yapear!?|acaban\s+de\s+yapear!?|te\s+yapearon!?|confirmaci[oó]n\s+de\s+pago!?)\s+)?(.+?)\s+te\s+envi[oó]\s+(?:un\s+(?:yape|pago)\s+(?:de|por)\s+)?(?:S/\.?|US\$|PEN|\$)?\s?([\d,]+(?:\.\d{1,2})?)',
     caseSensitive: false,
@@ -111,6 +116,7 @@ class YapeParser with AmountParsing implements BankParser {
     return packageNames.contains(n.packageName) ||
         pkg.contains('yape') ||
         text.contains('yape') ||
+        text.contains('remesa') ||
         text.contains('confirmación de pago') ||
         text.contains('confirmacion de pago') ||
         text.contains('cód. de seguridad') ||
@@ -123,7 +129,27 @@ class YapeParser with AmountParsing implements BankParser {
     final amount = extractAmount(text);
     if (amount == null) return null;
 
-    // 1. Probar patrones de ingreso
+    // 1. Probar patrón específico de remesa internacional
+    final remesaMatch = _incomingRemesa.firstMatch(text);
+    if (remesaMatch != null) {
+      final origin = remesaMatch.group(2);
+      final merchant = origin != null && origin.trim().isNotEmpty
+          ? 'Remesa: ${cleanMerchant(origin)}'
+          : 'Remesa Internacional Yape';
+      return ParsedExpense(
+        amount: amount.$1,
+        currency: amount.$2,
+        merchant: merchant,
+        occurredAt: n.receivedAt,
+        type: TransactionType.income,
+        confidence: 1,
+        rawText: text,
+        bankId: bankId,
+        suggestedCategoryId: 'other_income',
+      );
+    }
+
+    // 2. Probar patrones de ingreso estándar
     final inMatch1 = _incomingTeEnvio.firstMatch(text);
     if (inMatch1 != null) {
       final sender = cleanMerchant(inMatch1.group(1)!);
@@ -157,7 +183,7 @@ class YapeParser with AmountParsing implements BankParser {
       );
     }
 
-    // 2. Probar patrones de gasto/salida
+    // 3. Probar patrones de gasto/salida
     final outMatch = _outgoingEnviaste.firstMatch(text);
     if (outMatch != null) {
       final rawRecipient = outMatch.group(2);
@@ -173,12 +199,14 @@ class YapeParser with AmountParsing implements BankParser {
       );
     }
 
-    // 3. Fallback inteligente por palabras clave
+    // 4. Fallback inteligente por palabras clave
     final lower = text.toLowerCase();
     final isIncome = lower.contains('te yapearon') ||
         lower.contains('recibiste') ||
         lower.contains('te envió') ||
-        lower.contains('te envio');
+        lower.contains('te envio') ||
+        lower.contains('remesa') ||
+        lower.contains('giro');
 
     return ParsedExpense(
       amount: amount.$1,
@@ -473,6 +501,98 @@ class BbvaParser with AmountParsing implements BankParser {
       confidence: 1,
       rawText: n.fullText,
       bankId: bankId,
+    );
+  }
+}
+
+/// Parser especializado en PayPal.
+class PayPalParser with AmountParsing implements BankParser {
+  @override
+  String get bankId => 'paypal';
+
+  @override
+  Set<String> get packageNames => {
+        'com.paypal.android.p2pmobile',
+      };
+
+  static final _incomingPattern = RegExp(
+    r'(?:has\s+recibido|recibiste|you\s+received|te\s+ha\s+enviado|sent\s+you).*?(?:S/\.?|US\$|USD|\$)?\s?([\d,]+(?:\.\d{1,2})?)\s*(?:USD|PEN|dólares|dolares|soles)?\s+(?:de|from)\s+(.+?)(?:\.|$)',
+    caseSensitive: false,
+  );
+
+  static final _outgoingPattern = RegExp(
+    r'(?:has\s+enviado\s+(?:un\s+)?pago|pagaste|you\s+paid|you\s+sent).*?(?:S/\.?|US\$|USD|\$)?\s?([\d,]+(?:\.\d{1,2})?)\s*(?:USD|PEN|dólares|dolares|soles)?\s+(?:a|to)\s+(.+?)(?:\.|$)',
+    caseSensitive: false,
+  );
+
+  @override
+  bool canHandle(RawNotification n) {
+    final pkg = n.packageName.toLowerCase();
+    final text = n.fullText.toLowerCase();
+    return packageNames.contains(n.packageName) ||
+        pkg.contains('paypal') ||
+        text.contains('paypal');
+  }
+
+  @override
+  ParsedExpense? parse(RawNotification n) {
+    final text = n.fullText;
+    final amount = extractAmount(text);
+    if (amount == null) return null;
+
+    final lower = text.toLowerCase();
+
+    // 1. Ingreso
+    final inMatch = _incomingPattern.firstMatch(text);
+    if (inMatch != null) {
+      final rawSender = inMatch.group(2);
+      final sender = rawSender != null ? cleanMerchant(rawSender) : '';
+      return ParsedExpense(
+        amount: amount.$1,
+        currency: amount.$2,
+        merchant: sender.isNotEmpty ? sender : 'Ingreso PayPal',
+        occurredAt: n.receivedAt,
+        type: TransactionType.income,
+        confidence: 1,
+        rawText: text,
+        bankId: bankId,
+        suggestedCategoryId: 'other_income',
+      );
+    }
+
+    // 2. Gasto / Pago
+    final outMatch = _outgoingPattern.firstMatch(text);
+    if (outMatch != null) {
+      final rawRecipient = outMatch.group(2);
+      final recipient = rawRecipient != null ? cleanMerchant(rawRecipient) : '';
+      return ParsedExpense(
+        amount: amount.$1,
+        currency: amount.$2,
+        merchant: recipient.isNotEmpty ? recipient : 'Pago PayPal',
+        occurredAt: n.receivedAt,
+        confidence: 1,
+        rawText: text,
+        bankId: bankId,
+      );
+    }
+
+    // 3. Fallback inteligente
+    final isIncome = lower.contains('recibiste') ||
+        lower.contains('has recibido') ||
+        lower.contains('received') ||
+        lower.contains('te envió') ||
+        lower.contains('te ha enviado');
+
+    return ParsedExpense(
+      amount: amount.$1,
+      currency: amount.$2,
+      merchant: isIncome ? 'Ingreso PayPal' : 'Pago PayPal',
+      occurredAt: n.receivedAt,
+      type: isIncome ? TransactionType.income : TransactionType.expense,
+      confidence: 0.9,
+      rawText: text,
+      bankId: bankId,
+      suggestedCategoryId: isIncome ? 'other_income' : null,
     );
   }
 }

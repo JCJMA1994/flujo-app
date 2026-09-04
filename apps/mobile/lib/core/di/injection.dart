@@ -99,6 +99,7 @@ Future<void> configureDependencies() async {
         BcpParser(),
         InterbankParser(),
         BbvaParser(),
+        PayPalParser(),
         GenericAmountParser(),
       ],
     )

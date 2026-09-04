@@ -8,30 +8,59 @@ import '../../domain/entities/parsed_expense.dart';
 
 /// Solo escuchamos apps bancarias y billeteras digitales autorizadas.
 const kBankPackages = <String>{
-  'pe.com.bcp.bank.bcp', // BCP
-  'com.bcp.innovacxion.yapeapp', // Yape
-  'pe.com.bcp.innovacxion.yapeapp', // Variante Yape
+  // ── Yape / BCP ──
+  'pe.com.bcp.bank.bcp',
+  'com.bcp.innovacxion.yapeapp',
+  'pe.com.bcp.innovacxion.yapeapp',
   'com.bcp.yape',
-  'pe.interbank.appnew', // Interbank
-  'com.bbva.pe.bbvacontigo', // BBVA
-  'pe.scotiabank.banking', // Scotiabank
-  'com.pichincha.pe', // Pichincha
-  'pe.plin.app', // Plin
+  // ── Plin / Interbank ──
+  'pe.interbank.appnew',
+  'pe.plin.app',
+  // ── BBVA ──
+  'com.bbva.pe.bbvacontigo',
+  // ── Scotiabank ──
+  'pe.scotiabank.banking',
+  // ── Banco de la Nación ──
+  'pe.gob.bn.bnamovil',
+  'pe.gob.bn.app',
+  // ── Banco Falabella ──
+  'pe.bancofalabella.movil',
+  'pe.falabella.bancofalabella',
+  // ── Banco Ripley ──
+  'pe.com.ripley.banco',
+  // ── BanBif ──
   'pe.com.banbif.android',
   'pe.com.banbif.banbifmovil',
+  // ── Banco Pichincha ──
+  'com.pichincha.pe',
+  // ── Cajas Municipales (Apps oficiales) ──
+  'pe.com.cajaarequipa.cajamovil',
+  'pe.com.cajaarequipa.agora',
+  'pe.com.cajahuancayo.cajamovil',
+  'pe.com.cajahuancayo.migente',
+  'pe.com.cajapiura.cajamovil',
   'pe.com.cajapiura.pexpe',
   'com.pexpe.app',
+  'pe.com.cajacusco.cmacmovil',
+  // ── Billeteras Digitales Peruanas ──
+  'pe.com.pdp.bim',
   'pe.interbank.tunki',
   'com.tunki.app',
-  'pe.com.cajaarequipa.agora',
-  'pe.com.cajahuancayo.migente',
-  'com.mercadopago.wallet',
-  'com.mercadolibre.wallet',
+  'pe.com.agora.wallet',
+  'pe.com.agora',
+  'pe.com.tarjetasperuanas.ligo',
+  'pe.com.ligo.app',
   'pe.com.maximo.app',
   'com.maximo.wallet',
+  // ── Billeteras Internacionales / Remesas ──
+  'com.paypal.android.p2pmobile',
+  'com.mercadopago.wallet',
+  'com.mercadolibre.wallet',
   'ar.com.lemon',
   'com.lemoncash.app',
   'com.grability.rappi',
+  'com.westernunion.android.wsapp.pe',
+  'com.westernunion.moneytransfer',
 };
 
 abstract interface class NotificationListenerDataSource {
