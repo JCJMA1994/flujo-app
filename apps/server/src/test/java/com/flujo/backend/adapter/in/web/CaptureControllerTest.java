@@ -30,6 +30,15 @@ class CaptureControllerTest {
     @MockBean
     private JwtTokenService jwtTokenService;
 
+    @MockBean
+    private com.flujo.backend.application.service.RateLimiterService rateLimiterService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        org.mockito.Mockito.when(rateLimiterService.isAllowed(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+            .thenReturn(true);
+    }
+
     @Test
     void shouldReturnInterpretedTransactionSuccessfully() throws Exception {
         InterpretationResult mockResult = new InterpretationResult(
