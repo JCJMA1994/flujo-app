@@ -15,7 +15,10 @@ class TransactionsShimmer extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Row(
@@ -35,7 +38,10 @@ class TransactionsShimmer extends StatelessWidget {
             child: Card(
               margin: EdgeInsets.zero,
               elevation: 0,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.25),
               child: const Padding(
                 padding: EdgeInsets.all(14),
                 child: Row(

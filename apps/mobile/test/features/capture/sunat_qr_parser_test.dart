@@ -9,7 +9,8 @@ void main() {
   });
 
   group('SunatQrParser', () {
-    test('interpreta correctamente QR de Boleta SUNAT delimitada por pipes', () {
+    test('interpreta correctamente QR de Boleta SUNAT delimitada por pipes',
+        () {
       const rawQr =
           '20100070970|03|B001|00004523|5.40|35.40|2026-09-04|1|45678901|d41d8cd98f00b204e9800998ecf8427e|';
 

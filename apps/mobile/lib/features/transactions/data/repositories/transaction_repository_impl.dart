@@ -92,7 +92,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
     final now = DateTime.now();
     final isCurrentMonth = now.year == month.year && now.month == month.month;
     if (isCurrentMonth) return now.day;
-    if (DateTime(month.year, month.month).isAfter(DateTime(now.year, now.month))) {
+    if (DateTime(month.year, month.month)
+        .isAfter(DateTime(now.year, now.month))) {
       return 0;
     }
     return DateTime(month.year, month.month + 1, 0).day;
@@ -145,7 +146,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
     } on DioException catch (e) {
       final message = e.type == DioExceptionType.connectionError
           ? 'Sin conexión para sincronizar. Se reintentará luego.'
-          : (e.response?.data is Map && (e.response!.data as Map)['error'] != null
+          : (e.response?.data is Map &&
+                  (e.response!.data as Map)['error'] != null
               ? (e.response!.data as Map)['error'].toString()
               : 'Error al sincronizar datos con el servidor.');
       return FailureResult(ServerFailure(message));

@@ -67,176 +67,181 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-              // ── Tarjeta de Estado General ──
-              Card(
-                color: _getHealthColor(state.health).withValues(alpha: 0.12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: _getHealthColor(state.health).withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _getHealthIcon(state.health),
-                        color: _getHealthColor(state.health),
-                        size: 36,
+                  // ── Tarjeta de Estado General ──
+                  Card(
+                    color:
+                        _getHealthColor(state.health).withValues(alpha: 0.12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: _getHealthColor(state.health)
+                            .withValues(alpha: 0.4),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _getHealthTitle(state.health),
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: _getHealthColor(state.health),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _getHealthSubtitle(state.health),
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Checklist Técnico del Sistema ──
-              Text(
-                'Comprobación del Sistema',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              _ChecklistItem(
-                title: 'Acceso a notificaciones',
-                subtitle: isPermissionGranted
-                    ? 'Permiso concedido en Ajustes'
-                    : 'Falta autorizar en Notificaciones',
-                isValid: isPermissionGranted,
-                actionLabel: isPermissionGranted ? null : 'Activar',
-                onAction: () =>
-                    context.read<CaptureCubit>().requestPermission(),
-              ),
-
-              _ChecklistItem(
-                title: 'Servicio en segundo plano',
-                subtitle: isConnected
-                    ? 'Listener conectado al sistema Android'
-                    : 'Servicio desvinculado por el SO',
-                isValid: isConnected,
-              ),
-
-              _ChecklistItem(
-                title: 'Optimización de batería',
-                subtitle: isBatteryRestricted
-                    ? 'Restringida (riesgo de cierre por el SO)'
-                    : 'Sin restricciones (óptimo)',
-                isValid: !isBatteryRestricted,
-                actionLabel: isBatteryRestricted ? 'Eximir' : null,
-                onAction: () => context
-                    .read<CaptureCubit>()
-                    .requestIgnoreBatteryOptimizations(),
-              ),
-
-              if (isAggressiveOem) ...[
-                _ChecklistItem(
-                  title: 'Inicio automático ($manufacturer)',
-                  subtitle: 'Requerido para evitar muerte del listener',
-                  isValid: !state.isBatteryRestricted,
-                  actionLabel: 'Configurar',
-                  onAction: () =>
-                      context.read<CaptureCubit>().openAutostartSettings(),
-                ),
-              ],
-
-              const SizedBox(height: 16),
-
-              // ── Buffer Nativo SQLite ──
-              Text(
-                'Métricas del Buffer RAW Nativo',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _MetricColumn(
-                        label: 'Pendientes',
-                        value: '$pendingCount',
-                        color: Colors.orange,
-                      ),
-                      _MetricColumn(
-                        label: 'Procesadas',
-                        value: '$processedCount',
-                        color: Colors.green,
-                      ),
-                      _MetricColumn(
-                        label: 'Fallidas',
-                        value: '$failedCount',
-                        color: Colors.redAccent,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Dispositivo ──
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.phone_android),
-                title: Text('$manufacturer $model'),
-                subtitle: Text('Android SDK ${diag['androidVersion'] ?? ''}'),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Botón de Simulación de Prueba ──
-              OutlinedButton.icon(
-                icon: const Icon(Icons.send),
-                label: const Text('Simular Notificación Yape (Prueba)'),
-                onPressed: () {
-                  final fakeRaw = RawNotification(
-                    packageName: 'com.bcp.innovacxion.yapeapp',
-                    title: '¡Te acaban de yapear!',
-                    body: 'Juan Pérez te envió S/ 25.00',
-                    receivedAt: DateTime.now(),
-                    notificationHash:
-                        'fake_test_${DateTime.now().millisecondsSinceEpoch}',
-                  );
-                  // Disparamos la prueba directamente al cubit
-                  context.read<CaptureCubit>().simulateNotification(fakeRaw);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Simulación enviada al pipeline local'),
-                      duration: Duration(seconds: 2),
                     ),
-                  );
-                },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _getHealthIcon(state.health),
+                            color: _getHealthColor(state.health),
+                            size: 36,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _getHealthTitle(state.health),
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getHealthColor(state.health),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _getHealthSubtitle(state.health),
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Checklist Técnico del Sistema ──
+                  Text(
+                    'Comprobación del Sistema',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  _ChecklistItem(
+                    title: 'Acceso a notificaciones',
+                    subtitle: isPermissionGranted
+                        ? 'Permiso concedido en Ajustes'
+                        : 'Falta autorizar en Notificaciones',
+                    isValid: isPermissionGranted,
+                    actionLabel: isPermissionGranted ? null : 'Activar',
+                    onAction: () =>
+                        context.read<CaptureCubit>().requestPermission(),
+                  ),
+
+                  _ChecklistItem(
+                    title: 'Servicio en segundo plano',
+                    subtitle: isConnected
+                        ? 'Listener conectado al sistema Android'
+                        : 'Servicio desvinculado por el SO',
+                    isValid: isConnected,
+                  ),
+
+                  _ChecklistItem(
+                    title: 'Optimización de batería',
+                    subtitle: isBatteryRestricted
+                        ? 'Restringida (riesgo de cierre por el SO)'
+                        : 'Sin restricciones (óptimo)',
+                    isValid: !isBatteryRestricted,
+                    actionLabel: isBatteryRestricted ? 'Eximir' : null,
+                    onAction: () => context
+                        .read<CaptureCubit>()
+                        .requestIgnoreBatteryOptimizations(),
+                  ),
+
+                  if (isAggressiveOem) ...[
+                    _ChecklistItem(
+                      title: 'Inicio automático ($manufacturer)',
+                      subtitle: 'Requerido para evitar muerte del listener',
+                      isValid: !state.isBatteryRestricted,
+                      actionLabel: 'Configurar',
+                      onAction: () =>
+                          context.read<CaptureCubit>().openAutostartSettings(),
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+                  // ── Buffer Nativo SQLite ──
+                  Text(
+                    'Métricas del Buffer RAW Nativo',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _MetricColumn(
+                            label: 'Pendientes',
+                            value: '$pendingCount',
+                            color: Colors.orange,
+                          ),
+                          _MetricColumn(
+                            label: 'Procesadas',
+                            value: '$processedCount',
+                            color: Colors.green,
+                          ),
+                          _MetricColumn(
+                            label: 'Fallidas',
+                            value: '$failedCount',
+                            color: Colors.redAccent,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Dispositivo ──
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.phone_android),
+                    title: Text('$manufacturer $model'),
+                    subtitle:
+                        Text('Android SDK ${diag['androidVersion'] ?? ''}'),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Botón de Simulación de Prueba ──
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.send),
+                    label: const Text('Simular Notificación Yape (Prueba)'),
+                    onPressed: () {
+                      final fakeRaw = RawNotification(
+                        packageName: 'com.bcp.innovacxion.yapeapp',
+                        title: '¡Te acaban de yapear!',
+                        body: 'Juan Pérez te envió S/ 25.00',
+                        receivedAt: DateTime.now(),
+                        notificationHash:
+                            'fake_test_${DateTime.now().millisecondsSinceEpoch}',
+                      );
+                      // Disparamos la prueba directamente al cubit
+                      context
+                          .read<CaptureCubit>()
+                          .simulateNotification(fakeRaw);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Simulación enviada al pipeline local'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    },
+            ),
+          );
+        },
       ),
     );
   }

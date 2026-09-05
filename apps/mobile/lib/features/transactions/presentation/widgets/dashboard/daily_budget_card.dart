@@ -11,7 +11,8 @@ class DailyBudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isObscured = context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
+    final isObscured =
+        context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -107,7 +108,9 @@ class DailyBudgetCard extends StatelessWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  isObscured ? 'S/ ••••' : 'S/ ${dailyBudget.toStringAsFixed(2)}',
+                  isObscured
+                      ? 'S/ ••••'
+                      : 'S/ ${dailyBudget.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -118,7 +121,9 @@ class DailyBudgetCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                daysRemaining > 0 ? '/ día ($daysRemaining d restantes)' : '/ día',
+                daysRemaining > 0
+                    ? '/ día ($daysRemaining d restantes)'
+                    : '/ día',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

@@ -43,14 +43,16 @@ void main() {
     service = LocalNotificationService(plugin: mockPlugin);
   });
 
-  test('showTransactionNotification muestra notificación para gastos', () async {
+  test('showTransactionNotification muestra notificación para gastos',
+      () async {
     final expenseTx = Transaction(
       id: 'tx-exp-1',
       amount: 45.50,
       currency: 'PEN',
       merchant: 'Supermercado Metro',
       occurredAt: DateTime(2026, 9),
-      category: const Category(id: 'groceries', name: 'Alimentación', emoji: '🛒'),
+      category:
+          const Category(id: 'groceries', name: 'Alimentación', emoji: '🛒'),
       source: TransactionSource.bankNotification,
       scope: TransactionScope.personal,
       rawText: 'Compra Metro',
@@ -69,7 +71,8 @@ void main() {
     ).called(1);
   });
 
-  test('showTransactionNotification muestra notificación para ingresos', () async {
+  test('showTransactionNotification muestra notificación para ingresos',
+      () async {
     final incomeTx = Transaction(
       id: 'tx-inc-1',
       amount: 1200,

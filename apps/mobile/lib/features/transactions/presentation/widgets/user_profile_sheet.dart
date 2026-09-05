@@ -253,7 +253,8 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
                   SwitchListTile(
                     secondary: const Icon(Icons.fingerprint_rounded),
                     title: const Text('Bloqueo biométrico'),
-                    subtitle: const Text('Solicita huella o rostro al abrir Flujo'),
+                    subtitle:
+                        const Text('Solicita huella o rostro al abrir Flujo'),
                     value: _isBiometricEnabled,
                     onChanged: _handleBiometricToggle,
                   ),

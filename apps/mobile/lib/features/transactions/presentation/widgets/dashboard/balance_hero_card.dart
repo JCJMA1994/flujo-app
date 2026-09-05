@@ -11,7 +11,8 @@ class BalanceHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isObscured = context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
+    final isObscured =
+        context.watch<PrivacyCubit?>()?.state.isObscured ?? false;
     final isNetPositive = summary.netBalance >= 0;
 
     return Container(

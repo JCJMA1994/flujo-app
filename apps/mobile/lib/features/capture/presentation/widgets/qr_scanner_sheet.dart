@@ -144,7 +144,9 @@ class _QrScannerSheetState extends State<QrScannerSheet>
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('No se reconoció un formato válido de boleta SUNAT'),
+                    content: Text(
+                      'No se reconoció un formato válido de boleta SUNAT',
+                    ),
                   ),
                 );
               }
@@ -455,7 +457,11 @@ class _ReceiptConfirmationView extends StatelessWidget {
                   const Divider(height: 20),
                   Row(
                     children: [
-                      const Icon(Icons.store_rounded, size: 18, color: Colors.grey),
+                      const Icon(
+                        Icons.store_rounded,
+                        size: 18,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -468,7 +474,11 @@ class _ReceiptConfirmationView extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.tag_rounded, size: 18, color: Colors.grey),
+                      const Icon(
+                        Icons.tag_rounded,
+                        size: 18,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '${receipt.suggestedCategory.emoji} ${receipt.suggestedCategory.name}',
@@ -478,7 +488,8 @@ class _ReceiptConfirmationView extends StatelessWidget {
                         const Spacer(),
                         Text(
                           receipt.serialNumber,
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],
                     ],

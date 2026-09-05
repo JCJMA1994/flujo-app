@@ -95,7 +95,8 @@ void main() {
       );
     });
 
-    test('watchMonthlySummary maneja mes futuro correctamente con dailyAverage 0',
+    test(
+        'watchMonthlySummary maneja mes futuro correctamente con dailyAverage 0',
         () async {
       when(() => local.watchTransactions(any()))
           .thenAnswer((_) => Stream.value([]));

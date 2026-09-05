@@ -102,125 +102,126 @@ class _InitialOnboardingPageState extends State<InitialOnboardingPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Column(
-          children: [
-            // ── Header ──────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Row(
-                children: [
-                  const FlujoLogo(size: 32, showGlow: true),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Flujo',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: _kTextPrimary,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (!isLast)
-                    GestureDetector(
-                      onTap: _finish,
-                      child: const Text(
-                        'Omitir',
+              children: [
+                // ── Header ──────────────────────────────────────────────
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Row(
+                    children: [
+                      const FlujoLogo(size: 32, showGlow: true),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Flujo',
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: _kTextSecondary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: _kTextPrimary,
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ),
-
-            // ── Slides ──────────────────────────────────────────────
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _slides.length,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                itemBuilder: (_, i) => _SlideView(data: _slides[i]),
-              ),
-            ),
-
-            // ── Indicadores + Botón ─────────────────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 20 + bottomPad),
-              child: Row(
-                children: [
-                  // Dots
-                  ...List.generate(_slides.length, (i) {
-                    final active = i == _currentPage;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.only(right: 6),
-                      width: active ? 28 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: active ? _kAccent : _kBorder,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    );
-                  }),
-                  const Spacer(),
-
-                  // CTA
-                  GestureDetector(
-                    onTap: _next,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isLast ? 28 : 22,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0F766E), Color(0xFF2DD4BF)],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                                const Color(0xFF2DD4BF).withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            isLast ? 'Comenzar' : 'Continuar',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                      const Spacer(),
+                      if (!isLast)
+                        GestureDetector(
+                          onTap: _finish,
+                          child: const Text(
+                            'Omitir',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: _kTextSecondary,
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Icon(
-                            isLast
-                                ? Icons.check_rounded
-                                : Icons.arrow_forward_rounded,
-                            size: 18,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                // ── Slides ──────────────────────────────────────────────
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: _slides.length,
+                    onPageChanged: (i) => setState(() => _currentPage = i),
+                    itemBuilder: (_, i) => _SlideView(data: _slides[i]),
+                  ),
+                ),
+
+                // ── Indicadores + Botón ─────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 20 + bottomPad),
+                  child: Row(
+                    children: [
+                      // Dots
+                      ...List.generate(_slides.length, (i) {
+                        final active = i == _currentPage;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.only(right: 6),
+                          width: active ? 28 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: active ? _kAccent : _kBorder,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      }),
+                      const Spacer(),
+
+                      // CTA
+                      GestureDetector(
+                        onTap: _next,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isLast ? 28 : 22,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF0F766E), Color(0xFF2DD4BF)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF2DD4BF)
+                                    .withValues(alpha: 0.3),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isLast ? 'Comenzar' : 'Continuar',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Icon(
+                                isLast
+                                    ? Icons.check_rounded
+                                    : Icons.arrow_forward_rounded,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
 

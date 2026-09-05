@@ -86,7 +86,8 @@ class LocalNotificationService {
       await init();
 
       final isIncome = transaction.type == TransactionType.income;
-      final titlePrefix = isIncome ? '💰 Ingreso registrado' : '💸 Gasto registrado';
+      final titlePrefix =
+          isIncome ? '💰 Ingreso registrado' : '💸 Gasto registrado';
       final formattedAmount =
           '${transaction.currency == 'USD' ? r'$' : 'S/'} ${transaction.amount.toStringAsFixed(2)}';
       final title = '$titlePrefix: $formattedAmount';
@@ -95,11 +96,12 @@ class LocalNotificationService {
           '${transaction.category.name} ${transaction.category.emoji}';
       final body = '${transaction.merchant} · $categoryInfo';
 
-      final origin = transaction.parser != null && transaction.parser != 'generic'
-          ? transaction.parser!.toUpperCase()
-          : (transaction.source == TransactionSource.bankNotification
-              ? 'NOTIFICACIÓN'
-              : 'COMPROBANTE');
+      final origin =
+          transaction.parser != null && transaction.parser != 'generic'
+              ? transaction.parser!.toUpperCase()
+              : (transaction.source == TransactionSource.bankNotification
+                  ? 'NOTIFICACIÓN'
+                  : 'COMPROBANTE');
       final scopeName = transaction.scope == TransactionScope.business
           ? '💼 Negocio'
           : '👤 Personal';
@@ -109,9 +111,8 @@ class LocalNotificationService {
         ..writeln('🏷️ $categoryInfo')
         ..write('📱 Vía $origin · $scopeName');
 
-      final notificationColor = isIncome
-          ? const Color(0xFF059669)
-          : const Color(0xFF0D9488);
+      final notificationColor =
+          isIncome ? const Color(0xFF059669) : const Color(0xFF0D9488);
 
       final notificationDetails = NotificationDetails(
         android: AndroidNotificationDetails(
@@ -132,7 +133,9 @@ class LocalNotificationService {
           styleInformation: BigTextStyleInformation(
             bigText.toString(),
             contentTitle: title,
-            summaryText: isIncome ? '✨ ¡Ingreso confirmado!' : '⚡ Gasto capturado al instante',
+            summaryText: isIncome
+                ? '✨ ¡Ingreso confirmado!'
+                : '⚡ Gasto capturado al instante',
           ),
         ),
         iOS: DarwinNotificationDetails(

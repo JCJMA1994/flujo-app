@@ -140,8 +140,10 @@ class _ChatViewState extends State<_ChatView> {
                   ),
                   if (state.status == ChatStatus.loading) ...[
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
                       child: Row(
                         children: [
                           const SizedBox(
@@ -174,7 +176,8 @@ class _ChatViewState extends State<_ChatView> {
                           return ActionChip(
                             label: Text(chip),
                             onPressed: () => _handleSend(chip),
-                            avatar: const Icon(Icons.touch_app_outlined, size: 16),
+                            avatar:
+                                const Icon(Icons.touch_app_outlined, size: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),

@@ -43,7 +43,8 @@ void main() {
         ),
       );
 
-      final result = await dataSource.interpret('¡Te yapearon! Carlos te envió S/ 50.00');
+      final result =
+          await dataSource.interpret('¡Te yapearon! Carlos te envió S/ 50.00');
 
       expect(result, isA<Success<ParsedExpense>>());
       result.fold(
@@ -80,7 +81,8 @@ void main() {
         ),
       );
 
-      final result = await dataSource.interpret('Yapeaste S/ 15.00 a Bodega Don Pepe');
+      final result =
+          await dataSource.interpret('Yapeaste S/ 15.00 a Bodega Don Pepe');
 
       expect(result, isA<Success<ParsedExpense>>());
       result.fold(

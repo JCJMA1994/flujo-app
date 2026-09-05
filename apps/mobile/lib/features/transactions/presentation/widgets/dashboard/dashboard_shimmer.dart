@@ -29,7 +29,10 @@ class DashboardShimmer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: const Column(
@@ -73,7 +76,10 @@ class DashboardShimmer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Column(
@@ -89,7 +95,11 @@ class DashboardShimmer extends StatelessWidget {
                   SizedBox(height: 16),
                   ShimmerBox(width: 160, height: 32),
                   SizedBox(height: 12),
-                  ShimmerBox(width: double.infinity, height: 14, borderRadius: 6),
+                  ShimmerBox(
+                    width: double.infinity,
+                    height: 14,
+                    borderRadius: 6,
+                  ),
                 ],
               ),
             ),
@@ -109,7 +119,10 @@ class DashboardShimmer extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Row(

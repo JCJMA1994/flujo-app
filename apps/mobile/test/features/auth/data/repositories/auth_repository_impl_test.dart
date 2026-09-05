@@ -103,7 +103,8 @@ void main() {
       expect(user.email, equals('test@flujo.com'));
     });
 
-    test('logout llama al datasource remoto y limpia el almacenamiento local', () async {
+    test('logout llama al datasource remoto y limpia el almacenamiento local',
+        () async {
       when(() => mockRemoteDataSource.logout()).thenAnswer((_) async {});
       when(() => mockLocalDataSource.clearSession()).thenAnswer((_) async {});
 

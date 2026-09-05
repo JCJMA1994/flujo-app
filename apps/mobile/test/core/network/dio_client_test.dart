@@ -45,7 +45,8 @@ void main() {
       verify(() => mockRequestHandler.next(requestOptions)).called(1);
     });
 
-    test('elimina token y ejecuta onUnauthorized ante error 401 en ruta protegida',
+    test(
+        'elimina token y ejecuta onUnauthorized ante error 401 en ruta protegida',
         () async {
       when(() => mockStorage.delete(key: 'access_token'))
           .thenAnswer((_) async {});
@@ -77,7 +78,8 @@ void main() {
       expect(unauthorizedCalled, isTrue);
     });
 
-    test('no ejecuta onUnauthorized si el 401 proviene de /v1/auth/login', () async {
+    test('no ejecuta onUnauthorized si el 401 proviene de /v1/auth/login',
+        () async {
       var unauthorizedCalled = false;
       final client = DioClient(
         baseUrl: 'https://api.flujo.com',

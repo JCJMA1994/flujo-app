@@ -23,7 +23,9 @@ void main() {
   });
 
   group('BiometricService', () {
-    test('isBiometricsAvailable retorna true si el dispositivo soporta y puede chequear', () async {
+    test(
+        'isBiometricsAvailable retorna true si el dispositivo soporta y puede chequear',
+        () async {
       when(() => mockAuth.canCheckBiometrics).thenAnswer((_) async => true);
       when(() => mockAuth.isDeviceSupported()).thenAnswer((_) async => true);
 
@@ -32,7 +34,8 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('isBiometricLockEnabled lee correctamente de secure storage', () async {
+    test('isBiometricLockEnabled lee correctamente de secure storage',
+        () async {
       when(() => mockStorage.read(key: 'biometric_lock_enabled'))
           .thenAnswer((_) async => 'true');
 
@@ -42,15 +45,19 @@ void main() {
     });
 
     test('setBiometricLockEnabled escribe en secure storage', () async {
-      when(() => mockStorage.write(key: 'biometric_lock_enabled', value: 'true'))
-          .thenAnswer((_) async {});
+      when(
+        () => mockStorage.write(key: 'biometric_lock_enabled', value: 'true'),
+      ).thenAnswer((_) async {});
 
       await service.setBiometricLockEnabled(enabled: true);
 
-      verify(() => mockStorage.write(key: 'biometric_lock_enabled', value: 'true')).called(1);
+      verify(
+        () => mockStorage.write(key: 'biometric_lock_enabled', value: 'true'),
+      ).called(1);
     });
 
-    test('authenticate invoca LocalAuthentication con las opciones correctas', () async {
+    test('authenticate invoca LocalAuthentication con las opciones correctas',
+        () async {
       when(() => mockAuth.canCheckBiometrics).thenAnswer((_) async => true);
       when(() => mockAuth.isDeviceSupported()).thenAnswer((_) async => true);
       when(

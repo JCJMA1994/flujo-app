@@ -42,8 +42,9 @@ class RemoteAiCategorizerDataSource implements AiCategorizerDataSource {
       }
 
       final typeStr = (data['type'] as String? ?? 'expense').toLowerCase();
-      final transactionType =
-          typeStr == 'income' ? TransactionType.income : TransactionType.expense;
+      final transactionType = typeStr == 'income'
+          ? TransactionType.income
+          : TransactionType.expense;
 
       return Success(
         ParsedExpense(
@@ -93,8 +94,9 @@ class RemoteAiCategorizerDataSource implements AiCategorizerDataSource {
       }
 
       final typeStr = (data['type'] as String? ?? 'expense').toLowerCase();
-      final transactionType =
-          typeStr == 'income' ? TransactionType.income : TransactionType.expense;
+      final transactionType = typeStr == 'income'
+          ? TransactionType.income
+          : TransactionType.expense;
 
       return Success(
         ParsedExpense(
@@ -120,7 +122,6 @@ class RemoteAiCategorizerDataSource implements AiCategorizerDataSource {
                     'Error de conexión con el servidor al interpretar imagen',
               ),
       );
-
     } catch (e) {
       return FailureResult(ParseFailure(e.toString()));
     }

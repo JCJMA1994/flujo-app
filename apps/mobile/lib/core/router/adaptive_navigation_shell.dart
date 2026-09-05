@@ -157,7 +157,8 @@ class _FlujoBottomBar extends StatelessWidget {
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(12, 6, 12, bottomInset > 0 ? bottomInset : 8),
+      padding:
+          EdgeInsets.fromLTRB(12, 6, 12, bottomInset > 0 ? bottomInset : 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),

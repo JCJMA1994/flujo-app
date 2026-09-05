@@ -202,7 +202,8 @@ class MonthlySummary extends Equatable {
     final now = DateTime.now();
     final isCurrentMonth = now.year == month.year && now.month == month.month;
     if (isCurrentMonth) return now.day;
-    if (DateTime(month.year, month.month).isAfter(DateTime(now.year, now.month))) {
+    if (DateTime(month.year, month.month)
+        .isAfter(DateTime(now.year, now.month))) {
       return 0;
     }
     return daysInMonth;
@@ -216,7 +217,8 @@ class MonthlySummary extends Equatable {
       final rem = daysInMonth - now.day + 1;
       return rem < 1 ? 1 : rem;
     }
-    if (DateTime(month.year, month.month).isAfter(DateTime(now.year, now.month))) {
+    if (DateTime(month.year, month.month)
+        .isAfter(DateTime(now.year, now.month))) {
       return daysInMonth;
     }
     return 0;

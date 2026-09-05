@@ -54,13 +54,17 @@ void main() {
 
       // Verificamos formato del gasto
       expect(
-        csv.contains('2026-03-15,14:30:00,Gasto,Starbucks Larcomar,Comida,25.50,PEN,Personal,bankNotification,Café con amigos'),
+        csv.contains(
+          '2026-03-15,14:30:00,Gasto,Starbucks Larcomar,Comida,25.50,PEN,Personal,bankNotification,Café con amigos',
+        ),
         isTrue,
       );
 
       // Verificamos escape de comas en el comercio del ingreso ("Cliente ABC, S.A.C.")
       expect(
-        csv.contains('2026-03-16,09:15:00,Ingreso,"Cliente ABC, S.A.C.",Honorarios,1500.00,PEN,Negocio,manual,Servicio de desarrollo'),
+        csv.contains(
+          '2026-03-16,09:15:00,Ingreso,"Cliente ABC, S.A.C.",Honorarios,1500.00,PEN,Negocio,manual,Servicio de desarrollo',
+        ),
         isTrue,
       );
     });
@@ -72,7 +76,8 @@ void main() {
         currency: 'PEN',
         merchant: 'Bodega "Don Pepe"',
         occurredAt: DateTime(2026, 3, 17, 18),
-        category: const Category(id: 'groceries', name: 'Supermercado', emoji: '🛒'),
+        category:
+            const Category(id: 'groceries', name: 'Supermercado', emoji: '🛒'),
         source: TransactionSource.manual,
         scope: TransactionScope.personal,
       );

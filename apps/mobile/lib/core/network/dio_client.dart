@@ -79,8 +79,8 @@ class _AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       final path = err.requestOptions.path;
       // No disparar auto-logout en login o register (credenciales incorrectas normales)
-      final isAuthEndpoint = path.contains('/v1/auth/login') ||
-          path.contains('/v1/auth/register');
+      final isAuthEndpoint =
+          path.contains('/v1/auth/login') || path.contains('/v1/auth/register');
       if (!isAuthEndpoint) {
         await _storage.delete(key: _tokenKey);
         onUnauthorized?.call();

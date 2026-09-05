@@ -36,7 +36,10 @@ class SunatQrParser {
       );
 
   static final Map<String, (String merchant, Category category)> _knownRucs = {
-    '20100070970': ('Supermercados Peruanos (Plaza Vea/Vivanda)', _category('groceries')),
+    '20100070970': (
+      'Supermercados Peruanos (Plaza Vea/Vivanda)',
+      _category('groceries')
+    ),
     '20100107211': ('Cencosud (Wong/Metro)', _category('groceries')),
     '20543130776': ('Tiendas Tambo', _category('food')),
     '20601446756': ('Tiendas Oxxo', _category('food')),
@@ -77,7 +80,9 @@ class SunatQrParser {
           final known = _knownRucs[ruc];
 
           final merchant = known?.$1 ??
-              (ruc.isNotEmpty ? 'Comercio RUC $ruc' : 'Pago en Efectivo (Boleta)');
+              (ruc.isNotEmpty
+                  ? 'Comercio RUC $ruc'
+                  : 'Pago en Efectivo (Boleta)');
           final category = known?.$2 ?? _category('other');
 
           return SunatReceiptData(

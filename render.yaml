@@ -1,10 +1,3 @@
-databases:
-  - name: flujo-db
-    databaseName: flujo_db
-    user: flujo_user
-    plan: free
-    region: oregon
-
 services:
   - type: web
     name: flujo-backend
@@ -15,26 +8,12 @@ services:
     region: oregon
     healthCheckPath: /health
     envVars:
-      - key: DB_HOST
-        fromDatabase:
-          name: flujo-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: flujo-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: flujo-db
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: flujo-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: flujo-db
-          property: password
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://aws-0-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres.xoxxdcmppmtueebdpqpq
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: JWT_SECRET
