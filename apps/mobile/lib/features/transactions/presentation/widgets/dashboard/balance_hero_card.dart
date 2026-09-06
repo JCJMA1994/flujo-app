@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../domain/entities/transaction.dart';
 import '../../cubit/privacy_cubit.dart';
@@ -33,13 +34,13 @@ class BalanceHeroCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.16),
-        ),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F766E).withValues(alpha: 0.3),
+            color: (isNetPositive
+                    ? const Color(0xFF0F766E)
+                    : const Color(0xFFDC2626))
+                .withValues(alpha: 0.35),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -48,13 +49,50 @@ class BalanceHeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Balance del mes',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFFCCFBF1),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Balance del mes',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white70,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isNetPositive
+                          ? LucideIcons.trendingUp
+                          : LucideIcons.trendingDown,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isNetPositive ? 'A favor' : 'En déficit',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           FittedBox(
@@ -63,20 +101,20 @@ class BalanceHeroCard extends StatelessWidget {
             child: Text(
               isObscured
                   ? 'S/ ••••••'
-                  : 'S/ ${summary.netBalance.toStringAsFixed(2)}',
+                  : 'S/ ${summary.netBalance.abs().toStringAsFixed(2)}',
               style: const TextStyle(
                 fontSize: 34,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w900,
                 color: Colors.white,
-                letterSpacing: -0.5,
+                letterSpacing: -1,
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -85,18 +123,18 @@ class BalanceHeroCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.greenAccent.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.arrow_downward_rounded,
-                          size: 14,
+                          LucideIcons.arrowDownLeft,
+                          size: 16,
                           color: Colors.greenAccent,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +155,7 @@ class BalanceHeroCard extends StatelessWidget {
                                     ? 'S/ ••••'
                                     : 'S/ ${summary.incomeTotal.toStringAsFixed(2)}',
                                 style: const TextStyle(
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -134,23 +172,23 @@ class BalanceHeroCard extends StatelessWidget {
                   width: 1,
                   color: Colors.white24,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.redAccent.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.arrow_upward_rounded,
-                          size: 14,
+                          LucideIcons.arrowUpRight,
+                          size: 16,
                           color: Colors.redAccent,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,61 +209,7 @@ class BalanceHeroCard extends StatelessWidget {
                                     ? 'S/ ••••'
                                     : 'S/ ${summary.total.toStringAsFixed(2)}',
                                 style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 28,
-                  width: 1,
-                  color: Colors.white24,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.cyanAccent.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.speed_rounded,
-                          size: 14,
-                          color: Colors.cyanAccent,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Promedio/d',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.white70,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                isObscured
-                                    ? 'S/ ••••'
-                                    : 'S/ ${summary.dailyAverage.toStringAsFixed(1)}',
-                                style: const TextStyle(
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),

@@ -494,6 +494,32 @@ class _ReceiptConfirmationView extends StatelessWidget {
                       ],
                     ],
                   ),
+                  if (receipt.customerDocumentNumber != null || receipt.taxAmount != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        if (receipt.customerDocumentNumber != null) ...[
+                          const Icon(
+                            Icons.badge_outlined,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${receipt.customerDocumentType ?? "Doc"}: ${receipt.customerDocumentNumber}',
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                        if (receipt.taxAmount != null) ...[
+                          const Spacer(),
+                          Text(
+                            'IGV: S/ ${receipt.taxAmount!.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

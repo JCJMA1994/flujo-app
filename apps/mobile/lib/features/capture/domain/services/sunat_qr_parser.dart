@@ -11,6 +11,9 @@ class SunatReceiptData {
     required this.suggestedCategory,
     this.date,
     this.taxAmount,
+    this.customerDocumentType,
+    this.customerDocumentNumber,
+    this.digitalHash,
     this.rawContent = '',
   });
 
@@ -22,6 +25,9 @@ class SunatReceiptData {
   final Category suggestedCategory;
   final DateTime? date;
   final double? taxAmount;
+  final String? customerDocumentType;
+  final String? customerDocumentNumber;
+  final String? digitalHash;
   final String rawContent;
 }
 
@@ -51,6 +57,7 @@ class SunatQrParser {
     '20508565934': ('Sodimac / Maestro Perú', _category('services')),
     '20100026211': ('Tottus', _category('groceries')),
     '20370146994': ('Bembos / NGR', _category('food')),
+    '20507646728': ('Huawei del Perú', _category('shopping')),
   };
 
   /// Intenta interpretar un texto escaneado de un código QR.
@@ -71,6 +78,9 @@ class SunatQrParser {
         final igvStr = parts[4].trim();
         final totalStr = parts[5].trim();
         final fechaStr = parts.length > 6 ? parts[6].trim() : '';
+        final clienteTipoDocRaw = parts.length > 7 ? parts[7].trim() : '';
+        final clienteNumDocRaw = parts.length > 8 ? parts[8].trim() : '';
+        final hashDigitalRaw = parts.length > 9 ? parts[9].trim() : '';
 
         final total = double.tryParse(totalStr.replaceAll(',', ''));
         if (total != null && total > 0) {
@@ -85,6 +95,14 @@ class SunatQrParser {
                   : 'Pago en Efectivo (Boleta)');
           final category = known?.$2 ?? _category('other');
 
+          final customerDocType = clienteTipoDocRaw.isNotEmpty
+              ? _resolveCustomerDocType(clienteTipoDocRaw)
+              : null;
+          final customerDocNum =
+              clienteNumDocRaw.isNotEmpty ? clienteNumDocRaw : null;
+          final digitalHash =
+              hashDigitalRaw.isNotEmpty ? hashDigitalRaw : null;
+
           return SunatReceiptData(
             ruc: ruc,
             documentType: docName,
@@ -92,6 +110,9 @@ class SunatQrParser {
             totalAmount: total,
             taxAmount: igv,
             date: date,
+            customerDocumentType: customerDocType,
+            customerDocumentNumber: customerDocNum,
+            digitalHash: digitalHash,
             merchantSuggested: merchant,
             suggestedCategory: category,
             rawContent: clean,
@@ -168,6 +189,16 @@ class SunatQrParser {
       '07' => 'Nota de Crédito',
       '08' => 'Nota de Débito',
       _ => 'Comprobante Electrónico',
+    };
+  }
+
+  String _resolveCustomerDocType(String code) {
+    return switch (code) {
+      '1' => 'DNI',
+      '6' => 'RUC',
+      '4' => 'Carnet Extranjería',
+      '7' => 'Pasaporte',
+      _ => 'Doc ($code)',
     };
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../features/capture/presentation/cubit/capture_cubit.dart';
 import '../../features/transactions/domain/repositories/transaction_repository.dart';
@@ -122,20 +123,20 @@ class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
                         child: FloatingActionButton.small(
                           onPressed: () => QuickActionHubSheet.show(context),
                           tooltip: 'Acción rápida',
-                          child: const Icon(Icons.add_rounded),
+                          child: const Icon(LucideIcons.plus),
                         ),
                       ),
                     ),
                   ),
                   destinations: [
                     const NavigationRailDestination(
-                      icon: Icon(Icons.dashboard_outlined),
-                      selectedIcon: Icon(Icons.dashboard_rounded),
+                      icon: Icon(LucideIcons.layoutDashboard),
+                      selectedIcon: Icon(LucideIcons.layoutDashboard),
                       label: Text('Inicio'),
                     ),
                     const NavigationRailDestination(
-                      icon: Icon(Icons.receipt_long_outlined),
-                      selectedIcon: Icon(Icons.receipt_long_rounded),
+                      icon: Icon(LucideIcons.receipt),
+                      selectedIcon: Icon(LucideIcons.receipt),
                       label: Text('Movimientos'),
                     ),
                     NavigationRailDestination(
@@ -143,19 +144,13 @@ class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
                         isLabelVisible: isCaptureActive,
                         backgroundColor: const Color(0xFF10B981),
                         smallSize: 8,
-                        child: const Icon(Icons.bolt_outlined),
-                      ),
-                      selectedIcon: Badge(
-                        isLabelVisible: isCaptureActive,
-                        backgroundColor: const Color(0xFF10B981),
-                        smallSize: 8,
-                        child: const Icon(Icons.bolt_rounded),
+                        child: const Icon(LucideIcons.zap),
                       ),
                       label: const Text('Captura'),
                     ),
                     const NavigationRailDestination(
-                      icon: Icon(Icons.person_outline_rounded),
-                      selectedIcon: Icon(Icons.person_rounded),
+                      icon: Icon(LucideIcons.user),
+                      selectedIcon: Icon(LucideIcons.user),
                       label: Text('Perfil'),
                     ),
                   ],
@@ -233,8 +228,8 @@ class _FlujoBottomBar extends StatelessWidget {
           // 1. Inicio
           _NavTabItem(
             label: 'Inicio',
-            icon: Icons.grid_view_outlined,
-            activeIcon: Icons.grid_view_rounded,
+            icon: LucideIcons.layoutDashboard,
+            activeIcon: LucideIcons.layoutDashboard,
             isSelected: currentIndex == 0,
             onTap: () => onDestinationSelected(0),
           ),
@@ -242,8 +237,8 @@ class _FlujoBottomBar extends StatelessWidget {
           // 2. Movimientos
           _NavTabItem(
             label: 'Movimientos',
-            icon: Icons.receipt_long_outlined,
-            activeIcon: Icons.receipt_long_rounded,
+            icon: LucideIcons.receipt,
+            activeIcon: LucideIcons.receipt,
             isSelected: currentIndex == 1,
             onTap: () => onDestinationSelected(1),
           ),
@@ -254,8 +249,8 @@ class _FlujoBottomBar extends StatelessWidget {
           // 4. Captura
           _NavTabItem(
             label: 'Captura',
-            icon: Icons.bolt_outlined,
-            activeIcon: Icons.bolt_rounded,
+            icon: LucideIcons.zap,
+            activeIcon: LucideIcons.zap,
             isSelected: currentIndex == 2,
             isBadgeVisible: isCaptureActive,
             onTap: () => onDestinationSelected(2),
@@ -264,8 +259,8 @@ class _FlujoBottomBar extends StatelessWidget {
           // 5. Perfil
           _NavTabItem(
             label: 'Perfil',
-            icon: Icons.person_outline_rounded,
-            activeIcon: Icons.person_rounded,
+            icon: LucideIcons.user,
+            activeIcon: LucideIcons.user,
             isSelected: currentIndex == 3,
             onTap: () => onDestinationSelected(3),
           ),
@@ -372,9 +367,9 @@ class _CenterActionButton extends StatelessWidget {
           ],
         ),
         child: const Icon(
-          Icons.add_rounded,
+          LucideIcons.plus,
           color: Colors.white,
-          size: 30,
+          size: 28,
         ),
       ),
     );

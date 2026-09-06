@@ -25,6 +25,29 @@ void main() {
       expect(result.merchantSuggested, contains('Plaza Vea'));
       expect(result.suggestedCategory.id, equals('groceries'));
       expect(result.date, equals(DateTime(2026, 9, 4)));
+      expect(result.customerDocumentType, equals('DNI'));
+      expect(result.customerDocumentNumber, equals('45678901'));
+      expect(result.digitalHash, equals('d41d8cd98f00b204e9800998ecf8427e'));
+    });
+
+    test('interpreta Boleta SUNAT Huawei con DNI del cliente y firma digital', () {
+      const rawQr =
+          '20507646728|03|BE01|00088698|45.61|299.00|2025-09-10|1|71542895|8NDCcEtzxHo41A6QhQj2eNJUggs=|';
+
+      final result = parser.parse(rawQr);
+
+      expect(result, isNotNull);
+      expect(result!.ruc, equals('20507646728'));
+      expect(result.documentType, equals('Boleta de Venta Electrónica'));
+      expect(result.serialNumber, equals('BE01-00088698'));
+      expect(result.taxAmount, equals(45.61));
+      expect(result.totalAmount, equals(299.00));
+      expect(result.merchantSuggested, equals('Huawei del Perú'));
+      expect(result.suggestedCategory.id, equals('shopping'));
+      expect(result.date, equals(DateTime(2025, 9, 10)));
+      expect(result.customerDocumentType, equals('DNI'));
+      expect(result.customerDocumentNumber, equals('71542895'));
+      expect(result.digitalHash, equals('8NDCcEtzxHo41A6QhQj2eNJUggs='));
     });
 
     test('interpreta Factura SUNAT de farmacia (Inkafarma/Mifarma)', () {
