@@ -49,7 +49,10 @@ class GoRouterRefreshStream extends ChangeNotifier {
   }
 }
 
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.splash,
   refreshListenable: GoRouterRefreshStream(getIt<AuthCubit>().stream),
   redirect: (context, state) {

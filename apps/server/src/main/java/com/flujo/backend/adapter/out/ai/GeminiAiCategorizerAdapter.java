@@ -50,52 +50,37 @@ public class GeminiAiCategorizerAdapter implements AiCategorizerPort {
             return InterpretationResult.empty();
         }
 
-        try {
-            String endpoint = "%s/%s:generateContent".formatted(apiUrl, model);
+        String systemPrompt = """
+            Eres un intérprete experto de finanzas y notificaciones bancarias peruanas (Yape, Plin, BCP, BBVA, Interbank, Scotiabank, BanBif, Banco de la Nación, Cajas Municipales como Arequipa o Huancayo, transferencias interbancarias CCE/SIP y pagos de servicios como Luz, Agua, Telefonía o Cálidda).
+            Extrae el movimiento financiero en formato JSON estricto:
+            - amount (número decimal positivo o null si no hay monto)
+            - currency ('PEN' o 'USD')
+            - type ('expense' para gastos/compras/pagos de servicios/transferencias enviadas o 'income' para ingresos/abonos/transferencias recibidas/yapes o plins recibidos/sueldos)
+            - merchant (nombre de la persona o comercio sin prefijos DLC*, IZI*, Yape, Plin)
+            - occurred_at (formato ISO-8601 con zona horaria de Perú -05:00)
+            - category_id ('food','transport','groceries','services','health','shopping','subscriptions','ants','salary','other')
+            - bank_id ('yape','plin','bcp','bbva','interbank','scotiabank','banbif','bn','caja','other')
+            - confidence (número entre 0.0 y 1.0)
+            Si la notificación no describe un movimiento financiero, devuelve amount null y confidence 0.0.
+            """;
 
-            String systemPrompt = """
-                Eres un intérprete experto de finanzas y notificaciones bancarias peruanas (Yape, Plin, BCP, BBVA, Interbank, Scotiabank, BanBif, Banco de la Nación, Cajas Municipales como Arequipa o Huancayo, transferencias interbancarias CCE/SIP y pagos de servicios como Luz, Agua, Telefonía o Cálidda).
-                Extrae el movimiento financiero en formato JSON estricto:
-                - amount (número decimal positivo o null si no hay monto)
-                - currency ('PEN' o 'USD')
-                - type ('expense' para gastos/compras/pagos de servicios/transferencias enviadas o 'income' para ingresos/abonos/transferencias recibidas/yapes o plins recibidos/sueldos)
-                - merchant (nombre de la persona o comercio sin prefijos DLC*, IZI*, Yape, Plin)
-                - occurred_at (formato ISO-8601 con zona horaria de Perú -05:00)
-                - category_id ('food','transport','groceries','services','health','shopping','subscriptions','ants','salary','other')
-                - bank_id ('yape','plin','bcp','bbva','interbank','scotiabank','banbif','bn','caja','other')
-                - confidence (número entre 0.0 y 1.0)
-                Si la notificación no describe un movimiento financiero, devuelve amount null y confidence 0.0.
-                """;
+        Map<String, Object> requestBody = Map.of(
+            "contents", List.of(
+                Map.of("parts", List.of(
+                    Map.of("text", "Notificación: " + notification.rawText())
+                ))
+            ),
+            "systemInstruction", Map.of(
+                "parts", List.of(Map.of("text", systemPrompt))
+            ),
+            "generationConfig", Map.of(
+                "responseMimeType", "application/json",
+                "temperature", 0.1
+            )
+        );
 
-            Map<String, Object> requestBody = Map.of(
-                "contents", List.of(
-                    Map.of("parts", List.of(
-                        Map.of("text", "Notificación: " + notification.rawText())
-                    ))
-                ),
-                "systemInstruction", Map.of(
-                    "parts", List.of(Map.of("text", systemPrompt))
-                ),
-                "generationConfig", Map.of(
-                    "responseMimeType", "application/json",
-                    "temperature", 0.1
-                )
-            );
-
-            String responseJson = restClient.post()
-                .uri(endpoint)
-                .header("X-goog-api-key", apiKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(requestBody)
-                .retrieve()
-                .body(String.class);
-
-            return parseGeminiResponse(responseJson);
-
-        } catch (Exception e) {
-            log.error("Error al invocar API de Gemini: {}", e.getMessage());
-            return InterpretationResult.empty();
-        }
+        String responseJson = callGeminiWithFallback(requestBody);
+        return parseGeminiResponse(responseJson);
     }
 
     @Override
@@ -105,61 +90,89 @@ public class GeminiAiCategorizerAdapter implements AiCategorizerPort {
             return InterpretationResult.empty();
         }
 
-        try {
-            String endpoint = "%s/%s:generateContent".formatted(apiUrl, model);
-            String effectiveMimeType = (mimeType != null && !mimeType.isBlank()) ? mimeType : "image/jpeg";
-            String base64Data = java.util.Base64.getEncoder().encodeToString(imageBytes);
+        String effectiveMimeType = (mimeType != null && !mimeType.isBlank()) ? mimeType : "image/jpeg";
+        String base64Data = java.util.Base64.getEncoder().encodeToString(imageBytes);
 
-            String systemPrompt = """
-                Eres un asistente experto de finanzas personales en el Perú. Tu función es analizar imágenes de comprobantes, vouchers de pago, transferencias bancarias e interbancarias inmediatas o diferidas (CCE/SIP), recibos de servicios recurrentes (Luz del Sur, Pluz/Enel, Sedapal, Cálidda, Claro, Movistar, Entel) y capturas de pantalla de Yape, Plin, BCP, BBVA, Interbank, Scotiabank, BanBif, Banco de la Nación, Cajas (Arequipa, Huancayo, Piura, etc.) y POS (Niubiz, Izipay).
-                Extrae con máxima precisión los siguientes datos en formato JSON estricto:
-                - amount (número decimal positivo)
-                - currency ('PEN' o 'USD')
-                - type ('expense' si es un pago realizado, consumo, transferencia enviada, cuota o servicio pagado; 'income' si es un abono, constancia de dinero recibido a favor del titular, sueldo o te yapearon/plinearon)
-                - merchant (nombre limpio de la contraparte, comercio, entidad o persona, sin códigos ni prefijos como DLC*, IZI*, Yape, Plin)
-                - occurred_at (formato ISO-8601 con zona horaria de Perú -05:00)
-                - category_id ('food','transport','groceries','services','health','shopping','subscriptions','ants','salary','other')
-                - bank_id ('yape','plin','bcp','bbva','interbank','scotiabank','banbif','bn','caja','other')
-                - confidence (número entre 0.0 y 1.0)
-                Si la imagen no es un comprobante financiero válido, devuelve amount null y confidence 0.0.
-                """;
+        String systemPrompt = """
+            Eres un asistente experto de finanzas personales en el Perú. Tu función es analizar imágenes de comprobantes, vouchers de pago, transferencias bancarias e interbancarias inmediatas o diferidas (CCE/SIP), recibos de servicios recurrentes (Luz del Sur, Pluz/Enel, Sedapal, Cálidda, Claro, Movistar, Entel) y capturas de pantalla de Yape, Plin, BCP, BBVA, Interbank, Scotiabank, BanBif, Banco de la Nación, Cajas (Arequipa, Huancayo, Piura, etc.) y POS (Niubiz, Izipay).
+            Extrae con máxima precisión los siguientes datos en formato JSON estricto:
+            - amount (número decimal positivo)
+            - currency ('PEN' o 'USD')
+            - type ('expense' si es un pago realizado, consumo, transferencia enviada, cuota o servicio pagado; 'income' si es un abono, constancia de dinero recibido a favor del titular, sueldo o te yapearon/plinearon)
+            - merchant (nombre limpio de la contraparte, comercio, entidad o persona, sin códigos ni prefijos como DLC*, IZI*, Yape, Plin)
+            - occurred_at (formato ISO-8601 con zona horaria de Perú -05:00)
+            - category_id ('food','transport','groceries','services','health','shopping','subscriptions','ants','salary','other')
+            - bank_id ('yape','plin','bcp','bbva','interbank','scotiabank','banbif','bn','caja','other')
+            - confidence (número entre 0.0 y 1.0)
+            Si la imagen no es un comprobante financiero válido, devuelve amount null y confidence 0.0.
+            """;
 
-            Map<String, Object> requestBody = Map.of(
-                "contents", List.of(
-                    Map.of("parts", List.of(
-                        Map.of("text", "Analiza este comprobante de pago peruano:"),
-                        Map.of("inlineData", Map.of(
-                            "mimeType", effectiveMimeType,
-                            "data", base64Data
-                        ))
+        Map<String, Object> requestBody = Map.of(
+            "contents", List.of(
+                Map.of("parts", List.of(
+                    Map.of("text", "Analiza este comprobante de pago peruano:"),
+                    Map.of("inlineData", Map.of(
+                        "mimeType", effectiveMimeType,
+                        "data", base64Data
                     ))
-                ),
-                "systemInstruction", Map.of(
-                    "parts", List.of(Map.of("text", systemPrompt))
-                ),
-                "generationConfig", Map.of(
-                    "responseMimeType", "application/json",
-                    "temperature", 0.1
-                )
-            );
+                ))
+            ),
+            "systemInstruction", Map.of(
+                "parts", List.of(Map.of("text", systemPrompt))
+            ),
+            "generationConfig", Map.of(
+                "responseMimeType", "application/json",
+                "temperature", 0.1
+            )
+        );
 
-            String responseJson = restClient.post()
-                .uri(endpoint)
-                .header("X-goog-api-key", apiKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(requestBody)
-                .retrieve()
-                .body(String.class);
+        String responseJson = callGeminiWithFallback(requestBody);
+        return parseGeminiResponse(responseJson);
+    }
 
-            return parseGeminiResponse(responseJson);
-
-        } catch (Exception e) {
-            log.error("Error al invocar API de Gemini para imagen: {}", e.getMessage());
-            return InterpretationResult.empty();
+    private String callGeminiWithFallback(Map<String, Object> requestBody) {
+        List<String> modelsToTry = new java.util.ArrayList<>();
+        if (model != null && !model.isBlank()) {
+            modelsToTry.add(model);
         }
+        for (String fallback : List.of("gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.6-flash")) {
+            if (!modelsToTry.contains(fallback)) {
+                modelsToTry.add(fallback);
+            }
+        }
+
+        Exception lastException = null;
+        for (String currentModel : modelsToTry) {
+            String endpoint = "%s/%s:generateContent".formatted(apiUrl, currentModel);
+            for (int attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    return restClient.post()
+                        .uri(endpoint)
+                        .header("X-goog-api-key", apiKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestBody)
+                        .retrieve()
+                        .body(String.class);
+                } catch (Exception e) {
+                    lastException = e;
+                    log.warn("Fallo al llamar Gemini con modelo {} (intento {}): {}", currentModel, attempt, e.getMessage());
+                    if (attempt < 2) {
+                        try {
+                            Thread.sleep(500L * attempt);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }
+        }
+
+        log.error("Todos los modelos de Gemini fallaron. Último error: {}", lastException != null ? lastException.getMessage() : "Desconocido");
+        return null;
     }
 
     private InterpretationResult parseGeminiResponse(String responseJson) {
+        if (responseJson == null) return InterpretationResult.empty();
         try {
             JsonNode root = objectMapper.readTree(responseJson);
             JsonNode textNode = root.path("candidates")

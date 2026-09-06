@@ -6,6 +6,8 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/services/local_notification_service.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/flujo_feedback_modal.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/usecases/usecases.dart';
 import '../../domain/entities/parsed_expense.dart';
@@ -109,72 +111,93 @@ class ShareIntentService {
     }
   }
 
+  BuildContext? _loadingContext;
+
   void _showLoading(String message) {
-    scaffoldMessengerKey.currentState
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFF1E293B),
-          behavior: SnackBarBehavior.floating,
-          content: Row(
-            children: [
-              const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Color(0xFF38BDF8),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  message,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        _loadingContext = dialogCtx;
+        final isDark = Theme.of(dialogCtx).brightness == Brightness.dark;
+        return PopScope(
+          canPop: false,
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 24,
+                    offset: const Offset(0, 4),
                   ),
-                ),
+                ],
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    width: 38,
+                    height: 38,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: FlujoTokens.verdePetroleo,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    message,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
           ),
-          duration: const Duration(seconds: 15),
-        ),
-      );
+        );
+      },
+    );
+  }
+
+  void _hideLoading() {
+    if (_loadingContext != null && _loadingContext!.mounted) {
+      Navigator.of(_loadingContext!).pop();
+      _loadingContext = null;
+    }
   }
 
   void _showSuccess(ParsedExpense expense) {
-    scaffoldMessengerKey.currentState
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFF059669),
-          behavior: SnackBarBehavior.floating,
-          content: Text(
-            '✅ Comprobante registrado: ${expense.currency} ${expense.amount.toStringAsFixed(2)} - ${expense.merchant}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+    _hideLoading();
+    final context = rootNavigatorKey.currentContext;
+    if (context != null) {
+      FlujoFeedbackModal.showSuccess(
+        context,
+        title: '¡Comprobante registrado!',
+        message:
+            '${expense.currency} ${expense.amount.toStringAsFixed(2)} en ${expense.merchant}',
       );
+    }
   }
 
   void _showError(String error) {
-    scaffoldMessengerKey.currentState
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFFDC2626),
-          behavior: SnackBarBehavior.floating,
-          content: Text(
-            '❌ Falló el análisis: $error',
-            style: const TextStyle(color: Colors.white),
-          ),
-          duration: const Duration(seconds: 6),
-        ),
+    _hideLoading();
+    final context = rootNavigatorKey.currentContext;
+    if (context != null) {
+      FlujoFeedbackModal.showError(
+        context,
+        title: 'No se pudo registrar',
+        message: error,
       );
+    }
   }
 
   Future<void> _processImage(Uint8List bytes, String mimeType) async {
