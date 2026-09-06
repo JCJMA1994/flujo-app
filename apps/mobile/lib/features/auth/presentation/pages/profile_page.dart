@@ -74,9 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
       final repository = getIt<TransactionRepository>();
       final exportService = getIt<TransactionExportService>();
 
-      final transactions = await repository
-          .watchTransactions(const TransactionFilter())
-          .first;
+      final transactions =
+          await repository.watchTransactions(const TransactionFilter()).first;
 
       if (!context.mounted) return;
 
@@ -290,10 +289,9 @@ class _ProfilePageState extends State<ProfilePage> {
               // ── Grupo de Acciones / Ajustes ──────────────────────────
               Container(
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1E293B)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(FlujoTokens.radioTarjetas),
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  borderRadius:
+                      BorderRadius.circular(FlujoTokens.radioTarjetas),
                   border: Border.all(
                     color: isDark
                         ? const Color(0xFF334155)

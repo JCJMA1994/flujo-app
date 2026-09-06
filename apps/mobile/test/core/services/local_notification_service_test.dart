@@ -48,7 +48,8 @@ void main() {
     service = LocalNotificationService(plugin: mockPlugin);
   });
 
-  test('showTransactionNotification muestra notificación para gastos confirmados',
+  test(
+      'showTransactionNotification muestra notificación para gastos confirmados',
       () async {
     final expenseTx = Transaction(
       id: 'tx-exp-1',
@@ -76,7 +77,8 @@ void main() {
     ).called(1);
   });
 
-  test('showTransactionNotification muestra notificación interactiva para gastos pendientes',
+  test(
+      'showTransactionNotification muestra notificación interactiva para gastos pendientes',
       () async {
     final pendingExpenseTx = Transaction(
       id: 'tx-exp-pending',
@@ -105,7 +107,8 @@ void main() {
     ).called(1);
   });
 
-  test('showTransactionNotification muestra notificación para ingresos confirmados',
+  test(
+      'showTransactionNotification muestra notificación para ingresos confirmados',
       () async {
     final incomeTx = Transaction(
       id: 'tx-inc-1',

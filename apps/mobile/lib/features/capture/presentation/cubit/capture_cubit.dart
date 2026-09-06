@@ -83,7 +83,9 @@ class CaptureCubit extends Cubit<CaptureState> {
 
     var isConnected = await _listener.isListenerConnected();
     if (!isConnected && hasPerm) {
-      debugPrint('[CaptureCubit] Listener desconectado. Intentando auto-reconexión...');
+      debugPrint(
+        '[CaptureCubit] Listener desconectado. Intentando auto-reconexión...',
+      );
       await _listener.rebindListener();
       isConnected = await _listener.isListenerConnected();
     }
@@ -157,7 +159,9 @@ class CaptureCubit extends Cubit<CaptureState> {
 
     await result.fold(
       onFailure: (failure) async {
-        debugPrint('[CaptureCubit] Notificación no reconocida por los parsers: $failure');
+        debugPrint(
+          '[CaptureCubit] Notificación no reconocida por los parsers: $failure',
+        );
         // Un texto no reconocido no es un error que valga interrumpir al
         // usuario. Lo contamos para poder mejorar los parsers después.
         emit(state.copyWith(unrecognizedCount: state.unrecognizedCount + 1));

@@ -190,7 +190,9 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
         }
       }
     } catch (e) {
-      debugPrint('[CaptureListener] Error en flushPendingOfflineNotifications: $e');
+      debugPrint(
+        '[CaptureListener] Error en flushPendingOfflineNotifications: $e',
+      );
     } finally {
       _isFlushing = false;
     }
@@ -296,10 +298,14 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
     try {
       final res =
           await _channel.invokeMethod<bool>('rebindNotificationListener');
-      debugPrint('[CaptureListener] rebindNotificationListener resultado: $res');
+      debugPrint(
+        '[CaptureListener] rebindNotificationListener resultado: $res',
+      );
       return res ?? false;
     } catch (e) {
-      debugPrint('[CaptureListener] Error invocando rebindNotificationListener: $e');
+      debugPrint(
+        '[CaptureListener] Error invocando rebindNotificationListener: $e',
+      );
       return false;
     }
   }

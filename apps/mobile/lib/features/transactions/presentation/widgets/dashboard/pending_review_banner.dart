@@ -36,9 +36,7 @@ class PendingReviewBanner extends StatelessWidget {
                 : const Color(0xFFFEF3C7),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark
-                  ? const Color(0xFF78350F)
-                  : const Color(0xFFFDE68A),
+              color: isDark ? const Color(0xFF78350F) : const Color(0xFFFDE68A),
             ),
           ),
           child: Row(
@@ -93,9 +91,8 @@ class PendingReviewBanner extends StatelessWidget {
               Icon(
                 LucideIcons.chevronRight,
                 size: 18,
-                color: isDark
-                    ? const Color(0xFFFDE68A)
-                    : const Color(0xFFB45309),
+                color:
+                    isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309),
               ),
             ],
           ),

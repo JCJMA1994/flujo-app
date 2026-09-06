@@ -60,7 +60,8 @@ class AppThemeController {
 }
 
 /// Getter para mantener compatibilidad con el código existente.
-ValueNotifier<ThemeMode> get appThemeModeNotifier => AppThemeController.notifier;
+ValueNotifier<ThemeMode> get appThemeModeNotifier =>
+    AppThemeController.notifier;
 
 /// Extensión semántica para colores propios del dominio de Flujo.
 class FlujoColors extends ThemeExtension<FlujoColors> {

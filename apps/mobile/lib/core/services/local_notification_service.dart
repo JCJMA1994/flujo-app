@@ -21,7 +21,8 @@ Future<void> notificationTapBackground(NotificationResponse response) async {
   if (response.actionId == 'action_confirm') {
     try {
       final db = AppDatabase();
-      await (db.update(db.transactionsTable)..where((t) => t.id.equals(payload)))
+      await (db.update(db.transactionsTable)
+            ..where((t) => t.id.equals(payload)))
           .write(
         const TransactionsTableCompanion(
           reviewed: Value(true),
@@ -258,9 +259,7 @@ class LocalNotificationService {
             contentTitle: title,
             summaryText: isPendingReview
                 ? '🤖 Categorizado por IA'
-                : (isIncome
-                    ? '✨ ¡Ingreso confirmado!'
-                    : '⚡ Gasto capturado'),
+                : (isIncome ? '✨ ¡Ingreso confirmado!' : '⚡ Gasto capturado'),
           ),
         ),
         iOS: DarwinNotificationDetails(

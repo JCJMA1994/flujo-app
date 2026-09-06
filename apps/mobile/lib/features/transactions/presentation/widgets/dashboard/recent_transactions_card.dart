@@ -24,7 +24,11 @@ class RecentTransactionsCard extends StatelessWidget {
       'services' => LucideIcons.zap,
       'health' => LucideIcons.heartPulse,
       'subscriptions' => LucideIcons.tv,
-      'salary' || 'freelance' || 'investments' || 'gifts' || 'other_income' =>
+      'salary' ||
+      'freelance' ||
+      'investments' ||
+      'gifts' ||
+      'other_income' =>
         LucideIcons.arrowDownLeft,
       _ => LucideIcons.receipt,
     };
@@ -108,9 +112,8 @@ class RecentTransactionsCard extends StatelessWidget {
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFE2E8F0),
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
               ),
             ),
             child: Center(
@@ -119,7 +122,8 @@ class RecentTransactionsCard extends StatelessWidget {
                   Icon(
                     LucideIcons.receipt,
                     size: 36,
-                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    color: theme.colorScheme.onSurfaceVariant
+                        .withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -139,9 +143,8 @@ class RecentTransactionsCard extends StatelessWidget {
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFE2E8F0),
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
               ),
             ),
             child: ListView.separated(
@@ -153,9 +156,8 @@ class RecentTransactionsCard extends StatelessWidget {
                 height: 1,
                 indent: 64,
                 endIndent: 16,
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFF1F5F9),
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
               ),
               itemBuilder: (context, index) {
                 final tx = recent[index];
@@ -163,7 +165,8 @@ class RecentTransactionsCard extends StatelessWidget {
                 final icon = _getCategoryIcon(tx.category.id);
                 final iconBg = _getCategoryBg(tx.category.id, isDark);
                 final iconColor = _getCategoryColor(tx.category.id, isDark);
-                final dateStr = DateFormat('dd MMM, HH:mm', 'es').format(tx.occurredAt);
+                final dateStr =
+                    DateFormat('dd MMM, HH:mm', 'es').format(tx.occurredAt);
 
                 return ListTile(
                   contentPadding:
@@ -219,14 +222,17 @@ class RecentTransactionsCard extends StatelessWidget {
               Icon(
                 LucideIcons.refreshCw,
                 size: 12,
-                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8),
+                color:
+                    isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8),
               ),
               const SizedBox(width: 6),
               Text(
                 'Actualizado hace un momento',
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8),
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF94A3B8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
