@@ -60,7 +60,6 @@ void main() {
           const Category(id: 'groceries', name: 'Alimentación', emoji: '🛒'),
       source: TransactionSource.bankNotification,
       scope: TransactionScope.personal,
-      reviewed: true,
       rawText: 'Compra Metro',
     );
 
@@ -118,7 +117,6 @@ void main() {
       source: TransactionSource.bankNotification,
       scope: TransactionScope.business,
       type: TransactionType.income,
-      reviewed: true,
       rawText: 'Transferencia recibida',
     );
 

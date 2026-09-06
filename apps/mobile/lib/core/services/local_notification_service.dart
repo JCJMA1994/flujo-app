@@ -13,7 +13,7 @@ import '../di/injection.dart';
 /// Callback de nivel superior para ejecutar acciones de notificación en segundo plano
 /// sin requerir abrir la interfaz de usuario.
 @pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse response) async {
+Future<void> notificationTapBackground(NotificationResponse response) async {
   WidgetsFlutterBinding.ensureInitialized();
   final payload = response.payload;
   if (payload == null || payload.isEmpty) return;
@@ -25,7 +25,7 @@ void notificationTapBackground(NotificationResponse response) async {
           .write(
         const TransactionsTableCompanion(
           reviewed: Value(true),
-          confidence: Value(1.0),
+          confidence: Value(1),
           syncedAt: Value(null),
         ),
       );
@@ -133,7 +133,7 @@ class LocalNotificationService {
             .write(
           const TransactionsTableCompanion(
             reviewed: Value(true),
-            confidence: Value(1.0),
+            confidence: Value(1),
             syncedAt: Value(null),
           ),
         );
@@ -169,7 +169,7 @@ class LocalNotificationService {
     return true;
   }
 
-  /// Muestra una notificación interactiva con botones [Confirmar] y [Editar] si
+  /// Muestra una notificación interactiva con botones para confirmar y editar si
   /// la transacción está pendiente de revisión, o informativa si ya fue confirmada.
   Future<void> showTransactionNotification(Transaction transaction) async {
     try {
@@ -226,14 +226,11 @@ class LocalNotificationService {
               const AndroidNotificationAction(
                 'action_confirm',
                 '✅ Confirmar',
-                showsUserInterface: false,
-                cancelNotification: true,
               ),
               const AndroidNotificationAction(
                 'action_edit',
                 '✏️ Editar',
                 showsUserInterface: true,
-                cancelNotification: true,
               ),
             ]
           : null;
