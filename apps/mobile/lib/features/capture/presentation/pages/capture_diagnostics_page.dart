@@ -139,6 +139,9 @@ class _CaptureDiagnosticsPageState extends State<CaptureDiagnosticsPage> {
                         ? 'Listener conectado al sistema Android'
                         : 'Servicio desvinculado por el SO',
                     isValid: isConnected,
+                    actionLabel: isConnected ? null : 'Reconectar',
+                    onAction: () =>
+                        context.read<CaptureCubit>().rebindListener(),
                   ),
 
                   _ChecklistItem(

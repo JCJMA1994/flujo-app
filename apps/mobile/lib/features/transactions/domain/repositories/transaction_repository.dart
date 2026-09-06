@@ -61,6 +61,8 @@ abstract interface class TransactionRepository {
 
   Future<Result<Transaction>> addTransaction(Transaction transaction);
 
+  Future<Transaction?> getTransaction(String id);
+
   Future<Result<Transaction>> updateTransaction(Transaction transaction);
 
   Future<Result<void>> deleteTransaction(String id);

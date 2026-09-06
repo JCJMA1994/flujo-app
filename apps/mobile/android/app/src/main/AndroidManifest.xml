@@ -60,6 +60,11 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <!-- Eliminar cualquier servicio duplicado inyectado por la librería externa -->
+        <service
+            android:name="notification.listener.service.NotificationListener"
+            tools:node="remove" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

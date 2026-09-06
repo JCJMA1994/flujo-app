@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/flujo_logo.dart';
 import '../cubit/capture_cubit.dart';
 
@@ -233,7 +235,22 @@ class _CaptureOnboardingViewState extends State<_CaptureOnboardingView>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push(AppRoutes.userRules),
+                        icon: const Icon(Icons.rule_folder_outlined, size: 20),
+                        label: const Text('Administrar reglas de captura'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     Center(
                       child: Text(
                         'Puedes desactivarlo en cualquier momento desde los Ajustes.',

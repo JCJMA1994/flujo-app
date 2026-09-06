@@ -15,10 +15,12 @@ class UserProfileSheet extends StatefulWidget {
   const UserProfileSheet({super.key});
 
   static Future<void> show(BuildContext context) {
+    final theme = Theme.of(context);
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -143,7 +145,7 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
       builder: (ctx) => AlertDialog(
         title: const Text('¿Cerrar sesión?'),
         content: const Text(
-          'Tus transacciones locales se conservarán en este dispositivo, pero necesitarás iniciar sesión nuevamente para sincronizar.',
+          'Se cerrará tu sesión y se vaciarán los datos locales de este dispositivo por seguridad.',
         ),
         actions: [
           TextButton(

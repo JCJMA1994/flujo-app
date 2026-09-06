@@ -57,7 +57,7 @@ class QuickActionHubSheet extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Nuevo Registro',
+                '¿Cómo quieres registrar?',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
@@ -70,28 +70,13 @@ class QuickActionHubSheet extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
-          // Opción 1: Escanear QR SUNAT
+          // Opción 1: Manualmente
           _ActionCard(
-            title: 'Escanear Boleta o Factura (QR)',
-            subtitle: 'Pagos en efectivo con ticket impreso SUNAT',
-            icon: Icons.qr_code_scanner_rounded,
-            gradient: const [Color(0xFF0D9488), Color(0xFF2DD4BF)],
-            badge: 'EFECTIVO',
-            onTap: () {
-              Navigator.of(context).pop();
-              QrScannerSheet.show(context);
-            },
-          ),
-          const SizedBox(height: 12),
-
-          // Opción 2: Movimiento Manual
-          _ActionCard(
-            title: 'Registrar Movimiento Manual',
-            subtitle: 'Gasto o ingreso con categoría y comercio',
-            icon: Icons.edit_note_rounded,
-            gradient: const [Color(0xFF4F46E5), Color(0xFF818CF8)],
+            title: 'Manualmente',
+            subtitle: 'Ingresa los datos tú mismo',
+            icon: Icons.edit_outlined,
             onTap: () {
               Navigator.of(context).pop();
               TransactionFormSheet.show(context);
@@ -99,13 +84,23 @@ class QuickActionHubSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Opción 3: Chat con IA
+          // Opción 2: Escanear QR
           _ActionCard(
-            title: 'Consultar Asistente Financiero',
-            subtitle: 'Pregúntale a Gemini sobre tus gastos o balances',
-            icon: Icons.auto_awesome_rounded,
-            gradient: const [Color(0xFF0284C7), Color(0xFF38BDF8)],
-            badge: 'IA',
+            title: 'Escanear QR',
+            subtitle: 'Desde tu comprobante',
+            icon: Icons.qr_code_scanner_rounded,
+            onTap: () {
+              Navigator.of(context).pop();
+              QrScannerSheet.show(context);
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Opción 3: Con asistente
+          _ActionCard(
+            title: 'Con asistente',
+            subtitle: 'Describe tu movimiento',
+            icon: Icons.chat_bubble_outline_rounded,
             onTap: () {
               Navigator.of(context).pop();
               context.push(AppRoutes.chat);
@@ -122,17 +117,13 @@ class _ActionCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.gradient,
     required this.onTap,
-    this.badge,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
-  final List<Color> gradient;
   final VoidCallback onTap;
-  final String? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +134,12 @@ class _ActionCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(18),
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
             ),
@@ -156,62 +147,34 @@ class _ActionCard extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: gradient.first.withValues(alpha: 0.35),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  shape: BoxShape.circle,
+                  color: isDark
+                      ? const Color(0xFF134E4A)
+                      : const Color(0xFFCCFBF1),
                 ),
-                child: Icon(icon, color: Colors.white, size: 24),
+                child: Icon(
+                  icon,
+                  color: isDark
+                      ? const Color(0xFF2DD4BF)
+                      : const Color(0xFF0F766E),
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          title,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (badge != null) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: gradient.first.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              badge!,
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: gradient.first,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -222,8 +185,8 @@ class _ActionCard extends StatelessWidget {
                 ),
               ),
               const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
+                Icons.chevron_right_rounded,
+                size: 20,
                 color: Colors.grey,
               ),
             ],

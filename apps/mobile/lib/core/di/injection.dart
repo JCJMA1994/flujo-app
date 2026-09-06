@@ -68,7 +68,10 @@ Future<void> configureDependencies() async {
 
     // ---------- Datasources ----------
     ..registerLazySingleton<AuthLocalDataSource>(
-      () => AuthLocalDataSourceImpl(storage: getIt()),
+      () => AuthLocalDataSourceImpl(
+        storage: getIt(),
+        database: getIt(),
+      ),
     )
     ..registerLazySingleton<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(dio: getIt()),

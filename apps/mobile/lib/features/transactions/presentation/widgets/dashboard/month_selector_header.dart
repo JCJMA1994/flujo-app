@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../domain/entities/transaction.dart';
 import '../../cubit/dashboard_cubit.dart';
@@ -28,7 +29,6 @@ class MonthSelectorHeader extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
-        // Generar últimos 12 meses + próximos 2 meses
         final months = List.generate(15, (index) {
           final m = now.month - 12 + index;
           return DateTime(now.year, m);
@@ -51,7 +51,7 @@ class MonthSelectorHeader extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close_rounded),
+                      icon: const Icon(LucideIcons.x, size: 20),
                       onPressed: () => Navigator.of(sheetContext).pop(),
                     ),
                   ],
@@ -80,8 +80,9 @@ class MonthSelectorHeader extends StatelessWidget {
                             .withValues(alpha: 0.5),
                         leading: Icon(
                           isSelected
-                              ? Icons.radio_button_checked_rounded
-                              : Icons.calendar_month_outlined,
+                              ? LucideIcons.checkCircle2
+                              : LucideIcons.calendar,
+                          size: 20,
                           color: isSelected
                               ? theme.colorScheme.primary
                               : theme.colorScheme.onSurfaceVariant,
@@ -101,23 +102,21 @@ class MonthSelectorHeader extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(12),
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Actual',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.primary,
                                   ),
                                 ),
                               )
                             : null,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.of(sheetContext).pop(item);
-                        },
+                        onTap: () => Navigator.of(sheetContext).pop(item),
                       );
                     },
                   ),
@@ -137,82 +136,83 @@ class MonthSelectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final cubit = context.read<DashboardCubit>();
     final monthName = DateFormat('MMMM yyyy', 'es').format(summary.month);
-    final isCurrent = _isCurrentMonth(summary.month);
+    final capitalized = monthName[0].toUpperCase() + monthName.substring(1);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Selector interactivo de mes
-          InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => _showMonthPicker(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    monthName[0].toUpperCase() + monthName.substring(1),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 20,
-                    color: theme.colorScheme.primary,
-                  ),
-                ],
-              ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              iconSize: 18,
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(LucideIcons.chevronLeft, size: 18),
+              tooltip: 'Mes anterior',
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                cubit.previousMonth();
+              },
             ),
-          ),
-          // Botones de navegación y retorno a Hoy
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isCurrent)
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ActionChip(
-                    visualDensity: VisualDensity.compact,
-                    avatar: const Icon(Icons.today_rounded, size: 14),
-                    label: const Text('Hoy'),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      cubit.goToCurrentMonth();
-                    },
+            const SizedBox(width: 2),
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => _showMonthPicker(context),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF334155)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
-              IconButton.filledTonal(
-                iconSize: 18,
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.chevron_left_rounded),
-                tooltip: 'Mes anterior',
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  cubit.previousMonth();
-                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      capitalized,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: isDark
+                            ? const Color(0xFFF8FAFC)
+                            : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      LucideIcons.chevronDown,
+                      size: 15,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 6),
-              IconButton.filledTonal(
-                iconSize: 18,
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.chevron_right_rounded),
-                tooltip: 'Mes siguiente',
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  cubit.nextMonth();
-                },
-              ),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(width: 2),
+            IconButton(
+              iconSize: 18,
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(LucideIcons.chevronRight, size: 18),
+              tooltip: 'Mes siguiente',
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                cubit.nextMonth();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

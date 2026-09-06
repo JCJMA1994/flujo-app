@@ -27,8 +27,13 @@ void main() {
         settings: any(named: 'settings'),
         onDidReceiveNotificationResponse:
             any(named: 'onDidReceiveNotificationResponse'),
+        onDidReceiveBackgroundNotificationResponse:
+            any(named: 'onDidReceiveBackgroundNotificationResponse'),
       ),
     ).thenAnswer((_) async => true);
+
+    when(() => mockPlugin.getNotificationAppLaunchDetails())
+        .thenAnswer((_) async => null);
 
     when(
       () => mockPlugin.show(
@@ -43,7 +48,7 @@ void main() {
     service = LocalNotificationService(plugin: mockPlugin);
   });
 
-  test('showTransactionNotification muestra notificación para gastos',
+  test('showTransactionNotification muestra notificación para gastos confirmados',
       () async {
     final expenseTx = Transaction(
       id: 'tx-exp-1',
@@ -55,6 +60,7 @@ void main() {
           const Category(id: 'groceries', name: 'Alimentación', emoji: '🛒'),
       source: TransactionSource.bankNotification,
       scope: TransactionScope.personal,
+      reviewed: true,
       rawText: 'Compra Metro',
     );
 
@@ -71,7 +77,36 @@ void main() {
     ).called(1);
   });
 
-  test('showTransactionNotification muestra notificación para ingresos',
+  test('showTransactionNotification muestra notificación interactiva para gastos pendientes',
+      () async {
+    final pendingExpenseTx = Transaction(
+      id: 'tx-exp-pending',
+      amount: 45.50,
+      currency: 'PEN',
+      merchant: 'Supermercado Metro',
+      occurredAt: DateTime(2026, 9),
+      category:
+          const Category(id: 'groceries', name: 'Alimentación', emoji: '🛒'),
+      source: TransactionSource.bankNotification,
+      scope: TransactionScope.personal,
+      reviewed: false,
+      rawText: 'Compra Metro',
+    );
+
+    await service.showTransactionNotification(pendingExpenseTx);
+
+    verify(
+      () => mockPlugin.show(
+        id: any(named: 'id'),
+        title: '💸 ¿Confirmar gasto: S/ 45.50?',
+        body: 'Supermercado Metro · Alimentación 🛒 (IA)',
+        notificationDetails: any(named: 'notificationDetails'),
+        payload: 'tx-exp-pending',
+      ),
+    ).called(1);
+  });
+
+  test('showTransactionNotification muestra notificación para ingresos confirmados',
       () async {
     final incomeTx = Transaction(
       id: 'tx-inc-1',
@@ -83,6 +118,7 @@ void main() {
       source: TransactionSource.bankNotification,
       scope: TransactionScope.business,
       type: TransactionType.income,
+      reviewed: true,
       rawText: 'Transferencia recibida',
     );
 

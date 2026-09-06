@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -20,8 +19,8 @@ class BiometricService {
     try {
       final canCheck = await _auth.canCheckBiometrics;
       final isSupported = await _auth.isDeviceSupported();
-      return canCheck && isSupported;
-    } on PlatformException {
+      return canCheck || isSupported;
+    } catch (_) {
       return false;
     }
   }
@@ -40,6 +39,7 @@ class BiometricService {
   /// Dispara el diálogo nativo de autenticación biométrica.
   Future<bool> authenticate({
     String reason = 'Verifica tu identidad para acceder a Flujo',
+    bool biometricOnly = true,
   }) async {
     try {
       final available = await isBiometricsAvailable();
@@ -47,10 +47,10 @@ class BiometricService {
 
       return await _auth.authenticate(
         localizedReason: reason,
-        biometricOnly: true,
+        biometricOnly: biometricOnly,
         persistAcrossBackgrounding: true,
       );
-    } on PlatformException {
+    } catch (_) {
       return false;
     }
   }

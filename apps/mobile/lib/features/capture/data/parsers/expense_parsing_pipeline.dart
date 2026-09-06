@@ -27,27 +27,35 @@ class ExpenseParsingPipeline {
     RawNotification notification, {
     required List<UserRule> rules,
   }) async {
-    // Etapa 1: Parsers deterministas locales (Yape, Plin, BCP, Interbank).
-    // Gratis, sin latencia, sin conexión y con 0 consumo de batería/red.
     ParsedExpense? expense;
-    for (final parser in _parsers) {
-      if (!parser.canHandle(notification)) continue;
-      final parsed = parser.parse(notification);
-      if (parsed != null && parsed.confidence >= 0.8) {
-        expense = parsed;
-        break;
-      }
-    }
 
-    // Etapa 2: Motor de Inteligencia Artificial (Gemini).
-    // Solo se invoca si los parsers deterministas locales no reconocieron el formato
-    // o ante notificaciones complejas, ahorrando batería y llamadas de red.
+    // Etapa 1: Motor de Inteligencia Artificial (Gemini).
+    // Prioridad máxima según requerimiento: interpretación semántica inteligente
+    // de comercios, montos y categorías sin depender de regex rígidas.
+    final aiResult = await _ai.interpret(notification.fullText);
+    expense = aiResult.fold<ParsedExpense?>(
+      onFailure: (_) => null,
+      onSuccess: (parsed) => parsed.copyWith(
+        notificationHash: notification.notificationHash,
+        rawNotificationId: notification.id,
+      ),
+    );
+
+    // Etapa 2: Fallback determinista local (Yape, Plin, BCP, Interbank).
+    // Si la IA falla (sin internet, timeout, error del backend), los parsers locales
+    // actúan de red de seguridad para no perder ninguna transacción.
     if (expense == null) {
-      final aiResult = await _ai.interpret(notification.fullText);
-      expense = aiResult.fold<ParsedExpense?>(
-        onFailure: (_) => null,
-        onSuccess: (parsed) => parsed,
-      );
+      for (final parser in _parsers) {
+        if (!parser.canHandle(notification)) continue;
+        final parsed = parser.parse(notification);
+        if (parsed != null && parsed.confidence >= 0.8) {
+          expense = parsed.copyWith(
+            notificationHash: notification.notificationHash,
+            rawNotificationId: notification.id,
+          );
+          break;
+        }
+      }
     }
 
     if (expense == null) {

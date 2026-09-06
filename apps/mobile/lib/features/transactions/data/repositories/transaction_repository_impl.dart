@@ -113,6 +113,16 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<Transaction?> getTransaction(String id) async {
+    try {
+      final model = await _local.getTransaction(id);
+      return model?.toEntity();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
   Future<Result<Transaction>> updateTransaction(Transaction transaction) async {
     try {
       final saved =

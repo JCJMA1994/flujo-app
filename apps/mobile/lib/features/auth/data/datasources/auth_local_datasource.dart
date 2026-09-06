@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../../../core/database/app_database.dart';
 import '../models/user_model.dart';
 
 abstract class AuthLocalDataSource {
@@ -16,10 +17,14 @@ abstract class AuthLocalDataSource {
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  AuthLocalDataSourceImpl({required FlutterSecureStorage storage})
-      : _storage = storage;
+  AuthLocalDataSourceImpl({
+    required FlutterSecureStorage storage,
+    AppDatabase? database,
+  })  : _storage = storage,
+        _database = database;
 
   final FlutterSecureStorage _storage;
+  final AppDatabase? _database;
 
   static const _tokenKey = 'access_token';
   static const _userIdKey = 'user_id';
@@ -59,5 +64,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _storage.delete(key: _userIdKey);
     await _storage.delete(key: _userEmailKey);
     await _storage.delete(key: _userNameKey);
+    await _database?.clearAllUserData();
   }
 }

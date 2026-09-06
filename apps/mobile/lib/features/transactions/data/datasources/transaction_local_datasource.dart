@@ -8,6 +8,8 @@ abstract interface class TransactionLocalDataSource {
 
   Future<TransactionModel> upsert(TransactionModel model);
 
+  Future<TransactionModel?> getTransaction(String id);
+
   Future<void> delete(String id);
 
   /// Transacciones creadas o editadas offline, aún no confirmadas por el server.

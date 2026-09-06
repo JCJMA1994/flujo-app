@@ -57,7 +57,7 @@ class _InitialOnboardingPageState extends State<InitialOnboardingPage> {
   Future<void> _finish() async {
     const storage = FlutterSecureStorage();
     await storage.write(key: 'has_seen_onboarding', value: 'true');
-    if (mounted) context.go(AppRoutes.dashboard);
+    if (mounted) context.go(AppRoutes.login);
   }
 
   void _next() {

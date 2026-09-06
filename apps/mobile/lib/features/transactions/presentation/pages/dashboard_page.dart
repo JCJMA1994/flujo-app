@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/flujo_logo.dart';
-import '../../../capture/presentation/cubit/capture_cubit.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../insights/presentation/cubit/insights_cubit.dart';
-import '../../../insights/presentation/widgets/insights_card.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/privacy_cubit.dart';
 import '../widgets/dashboard/balance_hero_card.dart';
 import '../widgets/dashboard/category_breakdown_list.dart';
-import '../widgets/dashboard/daily_budget_card.dart';
 import '../widgets/dashboard/dashboard_shimmer.dart';
 import '../widgets/dashboard/month_selector_header.dart';
-import '../widgets/dashboard/quick_actions_card.dart';
-import '../widgets/dashboard/variation_banner.dart';
-import '../widgets/user_profile_sheet.dart';
+import '../widgets/dashboard/pending_review_banner.dart';
+import '../widgets/dashboard/recent_transactions_card.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -50,39 +49,20 @@ class _DashboardView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const FlujoLogo(size: 30, showGlow: true),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Flujo',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                Text(
-                  'Gastos & Yape',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ],
+        title: Text(
+          'Flujo',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.5,
+          ),
         ),
         actions: [
           BlocBuilder<PrivacyCubit, PrivacyState>(
             builder: (context, privacy) {
               return IconButton(
                 icon: Icon(
-                  privacy.isObscured
-                      ? Icons.visibility_off_rounded
-                      : Icons.visibility_rounded,
+                  privacy.isObscured ? LucideIcons.eyeOff : LucideIcons.eye,
+                  size: 20,
                 ),
                 tooltip:
                     privacy.isObscured ? 'Mostrar saldos' : 'Ocultar saldos',
@@ -90,43 +70,30 @@ class _DashboardView extends StatelessWidget {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.receipt_long_outlined),
-            tooltip: 'Ver movimientos',
-            onPressed: () => context.go(AppRoutes.transactions),
-          ),
-          BlocBuilder<CaptureCubit, CaptureState>(
-            buildWhen: (prev, curr) => prev.permission != curr.permission,
-            builder: (context, state) {
-              final isGranted = state.permission == CapturePermission.granted;
-              return IconButton(
-                icon: Badge(
-                  isLabelVisible: isGranted,
-                  backgroundColor: Colors.green,
-                  smallSize: 8,
-                  child: Icon(
-                    isGranted
-                        ? Icons.notifications_active_rounded
-                        : Icons.notifications_none_rounded,
-                    color: isGranted ? theme.colorScheme.primary : null,
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, authState) {
+              final name = authState.user?.name ?? 'Usuario';
+              final initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
+              return Padding(
+                padding: const EdgeInsets.only(right: 16, left: 4),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () => context.go(AppRoutes.profile),
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: FlujoTokens.verdePetroleo,
+                    child: Text(
+                      initial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
                 ),
-                tooltip: isGranted
-                    ? 'Captura automática activa'
-                    : 'Activar captura automática',
-                onPressed: () => context.go(AppRoutes.captureOnboarding),
               );
             },
-          ),
-          IconButton(
-            icon: const Icon(Icons.auto_awesome_rounded),
-            tooltip: 'Asistente Flujo',
-            onPressed: () => context.push(AppRoutes.chat),
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            tooltip: 'Perfil y sincronización',
-            onPressed: () => UserProfileSheet.show(context),
           ),
         ],
       ),
@@ -196,34 +163,47 @@ class _SummaryView extends StatelessWidget {
                             MonthSelectorHeader(summary: summary),
                             const SizedBox(height: 16),
                             BalanceHeroCard(summary: summary),
-                            if (summary.variation != null) ...[
-                              const SizedBox(height: 14),
-                              VariationBanner(
-                                variation: summary.variation!,
-                                absoluteDifference: summary.absoluteVariation,
-                              ),
-                            ],
-                            const SizedBox(height: 14),
-                            DailyBudgetCard(summary: summary),
-                            const SizedBox(height: 14),
-                            const InsightsCard(),
-                            const SizedBox(height: 20),
-                            const QuickActionsCard(),
+                            const SizedBox(height: 16),
+                            BlocBuilder<TransactionBloc, TransactionState>(
+                              builder: (context, txState) {
+                                final pending = txState.transactions
+                                    .where((t) => !t.reviewed)
+                                    .toList();
+                                if (pending.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                return PendingReviewBanner(
+                                  pendingTransactions: pending,
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 24),
                       Expanded(
                         flex: 6,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CategorySectionHeader(
-                              count: summary.byCategory.length,
-                            ),
-                            const SizedBox(height: 12),
-                            CategoryBreakdownList(items: summary.byCategory),
-                          ],
+                        child: BlocBuilder<TransactionBloc, TransactionState>(
+                          builder: (context, txState) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RecentTransactionsCard(
+                                  transactions: txState.transactions,
+                                ),
+                                if (summary.byCategory.isNotEmpty) ...[
+                                  const SizedBox(height: 24),
+                                  CategorySectionHeader(
+                                    count: summary.byCategory.length,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  CategoryBreakdownList(
+                                    items: summary.byCategory,
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -238,26 +218,40 @@ class _SummaryView extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 600),
               child: ListView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 children: [
                   MonthSelectorHeader(summary: summary),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
                   BalanceHeroCard(summary: summary),
-                  if (summary.variation != null) ...[
-                    const SizedBox(height: 14),
-                    VariationBanner(
-                      variation: summary.variation!,
-                      absoluteDifference: summary.absoluteVariation,
-                    ),
+                  const SizedBox(height: 16),
+                  BlocBuilder<TransactionBloc, TransactionState>(
+                    builder: (context, txState) {
+                      final transactions = txState.transactions;
+                      final pending =
+                          transactions.where((t) => !t.reviewed).toList();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (pending.isNotEmpty) ...[
+                            PendingReviewBanner(
+                              pendingTransactions: pending,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          RecentTransactionsCard(
+                            transactions: transactions,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  if (summary.byCategory.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    CategorySectionHeader(count: summary.byCategory.length),
+                    const SizedBox(height: 10),
+                    CategoryBreakdownList(items: summary.byCategory),
                   ],
-                  const SizedBox(height: 14),
-                  DailyBudgetCard(summary: summary),
-                  const SizedBox(height: 14),
-                  const InsightsCard(),
-                  const SizedBox(height: 24),
-                  CategorySectionHeader(count: summary.byCategory.length),
-                  const SizedBox(height: 10),
-                  CategoryBreakdownList(items: summary.byCategory),
                   const SizedBox(height: 80),
                 ],
               ),

@@ -132,6 +132,21 @@ class DriftTransactionLocalDataSource implements TransactionLocalDataSource {
   }
 
   @override
+  Future<TransactionModel?> getTransaction(String id) async {
+    final query = _db.select(_db.transactionsTable).join([
+      leftOuterJoin(
+        _db.categoriesTable,
+        _db.categoriesTable.id.equalsExp(_db.transactionsTable.categoryId),
+      ),
+    ])
+      ..where(_db.transactionsTable.id.equals(id))
+      ..where(_db.transactionsTable.deleted.equals(false));
+
+    final row = await query.getSingleOrNull();
+    return row != null ? _mapRow(row) : null;
+  }
+
+  @override
   Future<void> delete(String id) async {
     // Borrado lógico: si borráramos la fila, la sincronización no tendría
     // forma de comunicarle el borrado al servidor.

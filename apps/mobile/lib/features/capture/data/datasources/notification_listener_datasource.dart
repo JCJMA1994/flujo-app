@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:notification_listener_service/notification_listener_service.dart';
 import 'package:rxdart/rxdart.dart';
@@ -72,6 +73,8 @@ abstract interface class NotificationListenerDataSource {
 
   Future<bool> isListenerConnected();
 
+  Future<bool> rebindListener();
+
   Future<Map<String, dynamic>> getDiagnostics();
 
   Future<void> flushPendingOfflineNotifications();
@@ -127,12 +130,15 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   void _bind() {
     // 1. Escuchar eventos de notificaciones en tiempo real desde MainActivity / FlujoNotificationListener
     _channel.setMethodCallHandler((call) async {
+      debugPrint('[CaptureListener] Evento nativo recibido: ${call.method}');
       if (call.method == 'onNotificationReceived') {
         final data = call.arguments;
+        debugPrint('[CaptureListener] onNotificationReceived data: $data');
         if (data is Map) {
           _processRawMap(Map<String, dynamic>.from(data));
         }
       } else if (call.method == 'onAppResumed') {
+        debugPrint('[CaptureListener] onAppResumed: sincronizando pendientes');
         await flushPendingOfflineNotifications();
       }
     });
@@ -152,6 +158,9 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
       );
 
       if (pending != null && pending.isNotEmpty) {
+        debugPrint(
+          '[CaptureListener] Recuperadas ${pending.length} notificaciones pendientes de staging',
+        );
         final processedIds = <int>[];
         for (final item in pending) {
           if (item is Map) {
@@ -180,7 +189,8 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
           await markNotificationsProcessed(processedIds);
         }
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[CaptureListener] Error en flushPendingOfflineNotifications: $e');
     } finally {
       _isFlushing = false;
     }
@@ -193,7 +203,12 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
         (data['body'] ?? data['content'] ?? data['text'] ?? '') as String;
     final postTime = data['postTime'] as int? ?? data['timestamp'] as int?;
 
-    if (!_isValidFinancialNotification(package, title, body)) return null;
+    if (!_isValidFinancialNotification(package, title, body)) {
+      debugPrint(
+        '[CaptureListener] Descartada: no coincide con lista blanca: $package',
+      );
+      return null;
+    }
 
     return RawNotification(
       id: (data['id'] as num?)?.toInt(),
@@ -211,11 +226,18 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
   void _processRawMap(Map<String, dynamic> data) {
     final raw = _createRawFromMap(data);
     if (raw != null) {
+      debugPrint(
+        '[CaptureListener] Notificación válida recibida de: ${raw.packageName} - ${raw.title}',
+      );
       if (raw.id != null && _processedIds.contains(raw.id)) {
+        debugPrint('[CaptureListener] Descartada por ID duplicado: ${raw.id}');
         return;
       }
       if (raw.notificationHash != null &&
           _processedHashes.contains(raw.notificationHash)) {
+        debugPrint(
+          '[CaptureListener] Descartada por hash duplicado: ${raw.notificationHash}',
+        );
         return;
       }
 
@@ -264,6 +286,20 @@ class AndroidNotificationListener implements NotificationListenerDataSource {
     try {
       return await _channel.invokeMethod<bool>('isListenerConnected') ?? false;
     } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> rebindListener() async {
+    if (!isSupported) return false;
+    try {
+      final res =
+          await _channel.invokeMethod<bool>('rebindNotificationListener');
+      debugPrint('[CaptureListener] rebindNotificationListener resultado: $res');
+      return res ?? false;
+    } catch (e) {
+      debugPrint('[CaptureListener] Error invocando rebindNotificationListener: $e');
       return false;
     }
   }
@@ -358,6 +394,9 @@ class NoopNotificationListener implements NotificationListenerDataSource {
 
   @override
   Future<bool> isListenerConnected() async => false;
+
+  @override
+  Future<bool> rebindListener() async => false;
 
   @override
   Future<Map<String, dynamic>> getDiagnostics() async => {};

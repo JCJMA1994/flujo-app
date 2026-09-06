@@ -33,58 +33,42 @@ class BalanceHeroCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.16),
         ),
         boxShadow: [
           BoxShadow(
-            color: (isNetPositive
-                    ? const Color(0xFF0D9488)
-                    : const Color(0xFFDC2626))
-                .withValues(alpha: 0.35),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
+            color: const Color(0xFF0F766E).withValues(alpha: 0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'BALANCE NETO',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                  color: Colors.white70,
-                ),
-              ),
-              Icon(
-                isNetPositive
-                    ? Icons.trending_up_rounded
-                    : Icons.trending_down_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ],
+          const Text(
+            'Balance del mes',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFFCCFBF1),
+            ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
               isObscured
                   ? 'S/ ••••••'
-                  : '${isNetPositive ? '+' : '-'}S/ ${summary.netBalance.abs().toStringAsFixed(2)}',
+                  : 'S/ ${summary.netBalance.toStringAsFixed(2)}',
               style: const TextStyle(
-                fontSize: 32,
+                fontSize: 34,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
-                letterSpacing: -1,
+                letterSpacing: -0.5,
               ),
             ),
           ),

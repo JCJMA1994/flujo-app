@@ -19,6 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es');
   await configureDependencies();
+  await AppThemeController.init();
 
   // Inicializa el servicio de notificaciones locales para avisos de gastos/ingresos
   final notificationService = getIt<LocalNotificationService>();
@@ -62,13 +63,19 @@ class FlujoApp extends StatelessWidget {
             ),
           );
         },
-        child: MaterialApp.router(
-          scaffoldMessengerKey: ShareIntentService.scaffoldMessengerKey,
-          title: 'Flujo: Gastos & Yape',
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          routerConfig: appRouter,
-          debugShowCheckedModeBanner: false,
+        child: ValueListenableBuilder<ThemeMode>(
+          valueListenable: appThemeModeNotifier,
+          builder: (context, themeMode, _) {
+            return MaterialApp.router(
+              scaffoldMessengerKey: ShareIntentService.scaffoldMessengerKey,
+              title: 'Flujo: Gastos & Yape',
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: themeMode,
+              routerConfig: appRouter,
+              debugShowCheckedModeBanner: false,
+            );
+          },
         ),
       ),
     );

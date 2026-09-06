@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/error/failures.dart';
@@ -80,7 +81,13 @@ class CaptureCubit extends Cubit<CaptureState> {
       return;
     }
 
-    final isConnected = await _listener.isListenerConnected();
+    var isConnected = await _listener.isListenerConnected();
+    if (!isConnected && hasPerm) {
+      debugPrint('[CaptureCubit] Listener desconectado. Intentando auto-reconexión...');
+      await _listener.rebindListener();
+      isConnected = await _listener.isListenerConnected();
+    }
+
     final isIgnoringBattery = await _listener.isIgnoringBatteryOptimizations();
     final diagnostics = await _listener.getDiagnostics();
     final isAggressive = diagnostics['isAggressiveOem'] as bool? ?? false;
@@ -108,6 +115,12 @@ class CaptureCubit extends Cubit<CaptureState> {
     );
   }
 
+  Future<bool> rebindListener() async {
+    final result = await _listener.rebindListener();
+    await checkHealth();
+    return result;
+  }
+
   Future<bool> requestIgnoreBatteryOptimizations() async {
     final result = await _listener.requestIgnoreBatteryOptimizations();
     await checkHealth();
@@ -132,6 +145,11 @@ class CaptureCubit extends Cubit<CaptureState> {
   }
 
   Future<void> _handle(RawNotification notification) async {
+    debugPrint(
+      '[CaptureCubit] Procesando notificación: '
+      '${notification.packageName} | ${notification.title} | ${notification.body}',
+    );
+
     final result = await _pipeline.process(
       notification,
       rules: state.rules,
@@ -139,11 +157,16 @@ class CaptureCubit extends Cubit<CaptureState> {
 
     await result.fold(
       onFailure: (failure) async {
+        debugPrint('[CaptureCubit] Notificación no reconocida por los parsers: $failure');
         // Un texto no reconocido no es un error que valga interrumpir al
         // usuario. Lo contamos para poder mejorar los parsers después.
         emit(state.copyWith(unrecognizedCount: state.unrecognizedCount + 1));
       },
       onSuccess: (expense) async {
+        debugPrint(
+          '[CaptureCubit] Movimiento detectado: ${expense.merchant} '
+          '${expense.currency} ${expense.amount} (${expense.type.name})',
+        );
         final now = DateTime.now();
         // Limpieza de claves antiguas (> 10 minutos)
         _recentCapturedKeys.removeWhere(
@@ -189,7 +212,9 @@ class CaptureCubit extends Cubit<CaptureState> {
           type: expense.type,
           confidence: expense.confidence,
           rawText: expense.rawText,
-          reviewed: expense.confidence >= 0.7,
+          // Con Opción B, todo gasto capturado queda pendiente de confirmación
+          // para permitir al usuario confirmar o editar desde la notificación/dashboard
+          reviewed: false,
           parser: expense.bankId ?? 'generic',
           parserVersion: expense.parserVersion,
           notificationHash: notifHash,

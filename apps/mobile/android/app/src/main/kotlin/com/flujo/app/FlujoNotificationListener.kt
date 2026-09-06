@@ -1,11 +1,18 @@
 package com.flujo.app
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import android.util.LruCache
+import androidx.core.app.NotificationCompat
 import com.flujo.app.database.RawNotificationDatabaseHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -153,10 +160,10 @@ class FlujoNotificationListener : NotificationListenerService() {
                     postTime = postTime
                 )
 
-                // 5. Si Flutter está activo en primer plano, emitir evento en tiempo real
+                // 5. Si Flutter está disponible (primer o segundo plano), emitir evento en tiempo real
                 if (rawId != -1L) {
                     val mainActivity = MainActivity.currentInstance
-                    if (mainActivity != null && mainActivity.isAppForeground) {
+                    if (mainActivity != null) {
                         val notifMap = mapOf(
                             "id" to rawId,
                             "notificationKey" to notifKey,
@@ -166,17 +173,62 @@ class FlujoNotificationListener : NotificationListenerService() {
                             "content" to text,
                             "timestamp" to postTime
                         )
-                        // Marcar como procesada inmediatamente para evitar doble entrega si se dispara onResume
+                        // Marcar como procesada inmediatamente para evitar doble entrega al reanudar
                         dbHelper.markAsProcessed(listOf(rawId))
                         mainActivity.sendNotificationToFlutter(notifMap)
+                        Log.i(TAG, "Notificación financiera emitida exitosamente a Flutter: $packageName")
                     } else {
-                        // 6. Si Flutter está cerrado o en background, encolar procesamiento con WorkManager
+                        // 6. Si Flutter no está activo en memoria, alertar en segundo plano y encolar Worker
+                        Log.i(TAG, "Flutter no activo en memoria. Mostrando alerta nativa en segundo plano.")
+                        showBackgroundNotification(applicationContext, title, text)
                         com.flujo.app.worker.NotificationProcessingWorker.enqueueImmediate(applicationContext)
                     }
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error procesando notificación financiera", e)
+        }
+    }
+
+    private fun showBackgroundNotification(context: Context, title: String, text: String) {
+        try {
+            val channelId = "flujo_transactions"
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    channelId,
+                    "Movimientos y Pagos",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Notificaciones de confirmación cuando se registra un gasto o ingreso"
+                }
+                notificationManager.createNotificationChannel(channel)
+            }
+
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                launchIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+            )
+
+            val notif = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(if (title.isNotBlank()) "💰 $title" else "💰 Movimiento detectado")
+                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+
+            notificationManager.notify((System.currentTimeMillis() % 10000).toInt(), notif)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error mostrando notificación nativa en segundo plano", e)
         }
     }
 

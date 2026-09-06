@@ -171,4 +171,14 @@ class AppDatabase extends _$AppDatabase {
       }
     });
   }
+
+  /// Vacía todos los datos del usuario (transacciones, eventos crudos y reglas)
+  /// al cerrar sesión, preservando las categorías semilla.
+  Future<void> clearAllUserData() async {
+    await transaction(() async {
+      await delete(transactionsTable).go();
+      await delete(rawEventsTable).go();
+      await delete(userRulesTable).go();
+    });
+  }
 }

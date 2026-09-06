@@ -1,13 +1,16 @@
 package com.flujo.app
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.flujo.app.database.RawNotificationDatabaseHelper
@@ -135,7 +138,45 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                 }
 
+                "rebindNotificationListener" -> {
+                    val success = rebindListener()
+                    result.success(success)
+                }
+
                 else -> result.notImplemented()
+            }
+        }
+    }
+
+    fun rebindListener(): Boolean {
+        val isGranted = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+        if (!isGranted) {
+            Log.d(TAG, "Permiso de listener no concedido; omitiendo rebind")
+            return false
+        }
+        val componentName = ComponentName(this, FlujoNotificationListener::class.java)
+        return try {
+            NotificationListenerService.requestRebind(componentName)
+            Log.i(TAG, "NotificationListenerService.requestRebind ejecutado con éxito para FlujoNotificationListener")
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Fallo requestRebind, intentando toggle con PackageManager", e)
+            try {
+                packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+                packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+                Log.i(TAG, "Toggle de PackageManager ejecutado exitosamente para FlujoNotificationListener")
+                true
+            } catch (e2: Exception) {
+                Log.e(TAG, "Fallo toggle de PackageManager para FlujoNotificationListener", e2)
+                false
             }
         }
     }
@@ -143,6 +184,9 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         currentInstance = this
+        if (!FlujoNotificationListener.isListenerConnected()) {
+            rebindListener()
+        }
         com.flujo.app.worker.NotificationProcessingWorker.schedulePeriodic(applicationContext)
         handleIntent(intent, isColdStart = true)
     }
@@ -151,6 +195,9 @@ class MainActivity : FlutterFragmentActivity() {
         super.onResume()
         currentInstance = this
         isAppForeground = true
+        if (!FlujoNotificationListener.isListenerConnected()) {
+            rebindListener()
+        }
         // Notificar al canal que la app reanudó para sincronizar notificaciones pendientes
         methodChannel?.invokeMethod("onAppResumed", null)
     }

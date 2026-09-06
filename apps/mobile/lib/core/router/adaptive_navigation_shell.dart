@@ -1,16 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/capture/presentation/cubit/capture_cubit.dart';
+import '../../features/transactions/domain/repositories/transaction_repository.dart';
+import '../../features/transactions/presentation/widgets/review_transaction_sheet.dart';
+import '../di/injection.dart';
+import '../services/local_notification_service.dart';
 import '../widgets/flujo_logo.dart';
 import '../widgets/quick_action_hub_sheet.dart';
 
 /// Shell adaptativo que provee una barra de navegación inferior moderna tipo dock
 /// con botón central de acción rápida en pantallas móviles (< 720px) y un NavigationRail lateral en pantallas
 /// amplias (tablets, foldables o escritorios >= 720px).
-class AdaptiveNavigationShell extends StatelessWidget {
+class AdaptiveNavigationShell extends StatefulWidget {
   const AdaptiveNavigationShell({
     required this.navigationShell,
     super.key,
@@ -20,17 +26,63 @@ class AdaptiveNavigationShell extends StatelessWidget {
 
   static const double _breakpoint = 720;
 
+  @override
+  State<AdaptiveNavigationShell> createState() =>
+      _AdaptiveNavigationShellState();
+}
+
+class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
+  StreamSubscription<String>? _reviewSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _subscribeToReviewRequests();
+    });
+  }
+
+  void _subscribeToReviewRequests() {
+    if (!getIt.isRegistered<LocalNotificationService>()) return;
+    final notifService = getIt<LocalNotificationService>();
+
+    final pendingId = notifService.pendingReviewId;
+    if (pendingId != null) {
+      notifService.clearPendingReviewId();
+      _openReviewFor(pendingId);
+    }
+
+    _reviewSubscription = notifService.onReviewRequested.listen(_openReviewFor);
+  }
+
+  Future<void> _openReviewFor(String transactionId) async {
+    if (!mounted) return;
+    if (!getIt.isRegistered<TransactionRepository>()) return;
+
+    final tx =
+        await getIt<TransactionRepository>().getTransaction(transactionId);
+    if (tx != null && mounted) {
+      await ReviewTransactionSheet.show(context, tx);
+    }
+  }
+
+  @override
+  void dispose() {
+    _reviewSubscription?.cancel();
+    super.dispose();
+  }
+
   void _onDestinationSelected(int index) {
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final isLargeScreen = width >= _breakpoint;
+    final isLargeScreen = width >= AdaptiveNavigationShell._breakpoint;
 
     return BlocBuilder<CaptureCubit, CaptureState>(
       buildWhen: (prev, curr) => prev.permission != curr.permission,
@@ -43,7 +95,7 @@ class AdaptiveNavigationShell extends StatelessWidget {
             body: Row(
               children: [
                 NavigationRail(
-                  selectedIndex: navigationShell.currentIndex,
+                  selectedIndex: widget.navigationShell.currentIndex,
                   onDestinationSelected: _onDestinationSelected,
                   labelType: NavigationRailLabelType.all,
                   leading: const Padding(
@@ -86,11 +138,6 @@ class AdaptiveNavigationShell extends StatelessWidget {
                       selectedIcon: Icon(Icons.receipt_long_rounded),
                       label: Text('Movimientos'),
                     ),
-                    const NavigationRailDestination(
-                      icon: Icon(Icons.auto_fix_high_outlined),
-                      selectedIcon: Icon(Icons.auto_fix_high_rounded),
-                      label: Text('Reglas'),
-                    ),
                     NavigationRailDestination(
                       icon: Badge(
                         isLabelVisible: isCaptureActive,
@@ -106,6 +153,11 @@ class AdaptiveNavigationShell extends StatelessWidget {
                       ),
                       label: const Text('Captura'),
                     ),
+                    const NavigationRailDestination(
+                      icon: Icon(Icons.person_outline_rounded),
+                      selectedIcon: Icon(Icons.person_rounded),
+                      label: Text('Perfil'),
+                    ),
                   ],
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
@@ -113,7 +165,7 @@ class AdaptiveNavigationShell extends StatelessWidget {
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1100),
-                      child: navigationShell,
+                      child: widget.navigationShell,
                     ),
                   ),
                 ),
@@ -123,9 +175,9 @@ class AdaptiveNavigationShell extends StatelessWidget {
         }
 
         return Scaffold(
-          body: navigationShell,
+          body: widget.navigationShell,
           bottomNavigationBar: _FlujoBottomBar(
-            currentIndex: navigationShell.currentIndex,
+            currentIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: _onDestinationSelected,
             isCaptureActive: isCaptureActive,
             onCenterAction: () => QuickActionHubSheet.show(context),
@@ -181,8 +233,8 @@ class _FlujoBottomBar extends StatelessWidget {
           // 1. Inicio
           _NavTabItem(
             label: 'Inicio',
-            icon: Icons.dashboard_outlined,
-            activeIcon: Icons.dashboard_rounded,
+            icon: Icons.grid_view_outlined,
+            activeIcon: Icons.grid_view_rounded,
             isSelected: currentIndex == 0,
             onTap: () => onDestinationSelected(0),
           ),
@@ -199,22 +251,22 @@ class _FlujoBottomBar extends StatelessWidget {
           // 3. Botón Central Flotante Elevado (+)
           _CenterActionButton(onPressed: onCenterAction),
 
-          // 4. Reglas
-          _NavTabItem(
-            label: 'Reglas',
-            icon: Icons.auto_fix_high_outlined,
-            activeIcon: Icons.auto_fix_high_rounded,
-            isSelected: currentIndex == 2,
-            onTap: () => onDestinationSelected(2),
-          ),
-
-          // 5. Captura
+          // 4. Captura
           _NavTabItem(
             label: 'Captura',
             icon: Icons.bolt_outlined,
             activeIcon: Icons.bolt_rounded,
-            isSelected: currentIndex == 3,
+            isSelected: currentIndex == 2,
             isBadgeVisible: isCaptureActive,
+            onTap: () => onDestinationSelected(2),
+          ),
+
+          // 5. Perfil
+          _NavTabItem(
+            label: 'Perfil',
+            icon: Icons.person_outline_rounded,
+            activeIcon: Icons.person_rounded,
+            isSelected: currentIndex == 3,
             onTap: () => onDestinationSelected(3),
           ),
         ],
