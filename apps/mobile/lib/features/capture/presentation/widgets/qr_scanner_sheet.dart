@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/widgets/flujo_feedback_modal.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/usecases/usecases.dart';
 import '../../../transactions/presentation/widgets/transaction_form_sheet.dart';
@@ -91,13 +92,11 @@ class _QrScannerSheetState extends State<QrScannerSheet>
     if (!mounted) return;
 
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '🧾 Registrado: S/ ${data.totalAmount.toStringAsFixed(2)} en ${data.merchantSuggested}',
-        ),
-        backgroundColor: const Color(0xFF0D9488),
-      ),
+    await FlujoFeedbackModal.showSuccess(
+      context,
+      title: 'Comprobante registrado',
+      message:
+          'S/ ${data.totalAmount.toStringAsFixed(2)} en ${data.merchantSuggested}',
     );
   }
 
@@ -142,12 +141,11 @@ class _QrScannerSheetState extends State<QrScannerSheet>
               if (parsed != null) {
                 setState(() => _detectedReceipt = parsed);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'No se reconoció un formato válido de boleta SUNAT',
-                    ),
-                  ),
+                FlujoFeedbackModal.showError(
+                  context,
+                  title: 'QR no reconocido',
+                  message:
+                      'No se reconoció un formato válido de boleta/factura electrónica SUNAT.',
                 );
               }
             },

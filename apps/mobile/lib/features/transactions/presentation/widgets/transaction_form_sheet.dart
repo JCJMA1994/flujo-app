@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/widgets/flujo_feedback_modal.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/usecases/usecases.dart';
 
@@ -108,22 +109,22 @@ class _TransactionFormSheetState extends State<TransactionFormSheet> {
 
     result.fold(
       onFailure: (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
+        FlujoFeedbackModal.showError(
+          context,
+          title: 'Error al registrar',
+          message: failure.message,
         );
       },
       onSuccess: (_) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isEditing
-                  ? 'Transacción actualizada'
-                  : (_selectedType == TransactionType.income
-                      ? 'Ingreso registrado con éxito'
-                      : 'Gasto registrado con éxito'),
-            ),
-          ),
+        FlujoFeedbackModal.showSuccess(
+          context,
+          title: isEditing ? 'Registro actualizado' : '¡Registro guardado!',
+          message: isEditing
+              ? 'Los cambios en la transacción fueron guardados con éxito.'
+              : (_selectedType == TransactionType.income
+                  ? 'El ingreso ha sido registrado exitosamente en tu balance.'
+                  : 'El gasto ha sido registrado exitosamente en tu balance.'),
         );
       },
     );

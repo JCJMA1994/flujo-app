@@ -191,22 +191,72 @@ class RecentTransactionsCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  subtitle: Text(
-                    '${_formatSource(tx.source)} • $dateStr',
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
+                  subtitle: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${_formatSource(tx.source)} • $dateStr',
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (!tx.reviewed) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF451A03)
+                                : const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Por revisar',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isDark
+                                  ? const Color(0xFFFBBF24)
+                                  : const Color(0xFFB45309),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  trailing: Text(
-                    '${isExpense ? "- " : "+ "}S/ ${tx.amount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                      color: isExpense
-                          ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                          : FlujoTokens.verdePetroleo,
-                    ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${isExpense ? "- " : "+ "}S/ ${tx.amount.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: isExpense
+                              ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                              : FlujoTokens.verdePetroleo,
+                        ),
+                      ),
+                      if (tx.reviewed)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Icon(
+                            LucideIcons.circleCheck,
+                            size: 13,
+                            color: isDark
+                                ? const Color(0xFF2DD4BF)
+                                : FlujoTokens.verdePetroleo,
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/security/biometric_service.dart';
+import '../../../../core/utils/result.dart';
+import '../../../../core/widgets/flujo_feedback_modal.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../data/services/transaction_export_service.dart';
@@ -67,17 +70,15 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
     if (!mounted) return;
     setState(() => _isBiometricEnabled = value);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          value
-              ? 'Bloqueo biométrico activado'
-              : 'Bloqueo biométrico desactivado',
-        ),
-        backgroundColor: value ? Colors.green : Colors.grey[800],
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (mounted) {
+      await FlujoFeedbackModal.showSuccess(
+        context,
+        title: value ? 'Bloqueo activado' : 'Bloqueo desactivado',
+        message: value
+            ? 'Se requerirá autenticación biométrica para acceder a la aplicación.'
+            : 'El acceso biométrico ha sido desactivado.',
+      );
+    }
   }
 
   Future<void> _handleExport(BuildContext context) async {
@@ -87,11 +88,10 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
           await repository.watchTransactions(const TransactionFilter()).first;
       if (transactions.isEmpty) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No hay transacciones registradas para exportar.'),
-            behavior: SnackBarBehavior.floating,
-          ),
+        await FlujoFeedbackModal.showError(
+          context,
+          title: 'Sin transacciones',
+          message: 'No hay transacciones registradas para exportar.',
         );
         return;
       }
@@ -99,12 +99,10 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
       await exportService.shareCsv(transactions: transactions);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al exportar transacciones: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      await FlujoFeedbackModal.showError(
+        context,
+        title: 'Error al exportar',
+        message: 'Ocurrió un inconveniente al exportar: $e',
       );
     }
   }
@@ -117,50 +115,30 @@ class _UserProfileSheetState extends State<UserProfileSheet> {
     if (!mounted) return;
     setState(() => _isSyncing = false);
 
-    result.fold(
-      onSuccess: (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sincronización completada con éxito'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-      onFailure: (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al sincronizar: ${failure.message}'),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-    );
+    if (result is FailureResult<void>) {
+      await FlujoFeedbackModal.showError(
+        context,
+        title: 'Error de sincronización',
+        message: result.failure.message,
+      );
+    } else {
+      await FlujoFeedbackModal.showSuccess(
+        context,
+        title: 'Sincronizado',
+        message: 'Tus datos se sincronizaron con éxito.',
+      );
+    }
   }
 
   Future<void> _confirmLogout(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('¿Cerrar sesión?'),
-        content: const Text(
-          'Se cerrará tu sesión y se vaciarán los datos locales de este dispositivo por seguridad.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
-            child: const Text('Cerrar sesión'),
-          ),
-        ],
-      ),
+    final confirmed = await FlujoFeedbackModal.showConfirmation(
+      context,
+      title: '¿Cerrar sesión?',
+      message:
+          'Se cerrará tu sesión y se protegerán los datos locales de este dispositivo.',
+      confirmLabel: 'Cerrar sesión',
+      isDestructive: true,
+      customIcon: LucideIcons.logOut,
     );
 
     if ((confirmed ?? false) && context.mounted) {
